@@ -21,10 +21,9 @@ service.interceptors.request.use(config => {
 service.interceptors.response.use(
     response => {
       /**
-       * code为非200是抛错 可结合自己业务进行修改
+       * errorCode为非'200'是抛错 可结合自己业务进行修改
        */
       const res = response.data;
-      console.log('测试response拦截器',response);
       if (res.errorCode !== '200') {
         Message({
           message: res.errorMessage,
@@ -32,7 +31,7 @@ service.interceptors.response.use(
           duration: 3 * 1000
         });
 
-        // 1001:未登录;
+        // '1001':未登录;
         if (res.errorCode === '1001') {
           MessageBox.confirm('你已被登出，请重新登录', '确定登出', {
             confirmButtonText: '重新登录',

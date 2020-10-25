@@ -7,6 +7,51 @@
       <el-breadcrumb-item>评论列表</el-breadcrumb-item>
     </el-breadcrumb>
 
+    <!-- 筛选搜索卡片   -->
+    <el-card style="margin-bottom: 15px">
+      <div>
+        <i class="el-icon-search"></i>
+        <span>筛选搜索</span>
+        <el-button
+                style="float: right"
+                @click="getCommentList"
+                type="primary"
+                size="small">
+          查询结果
+        </el-button>
+        <el-button style="float: right;margin-right: 15px" @click="ResetSearch" size="small">
+          重置
+        </el-button>
+      </div>
+      <div style="margin-top: 15px;">
+        <el-form :inline="true" v-model="queryInfo.commentFilter" size="small" label-width="140px" ref="searchForm">
+          <el-form-item label="用户id：" prop="userid">
+            <el-input style="width: 203px" v-model="queryInfo.commentFilter.userId" placeholder="用户id"></el-input>
+          </el-form-item>
+          <el-form-item label="是否审核：" prop="checked">
+            <el-select v-model="queryInfo.commentFilter.checked" placeholder="请选择是否审核">
+              <el-option
+                      v-for="item in checkedOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="是否通过：" prop="passed">
+            <el-select v-model="queryInfo.commentFilter.passed" placeholder="请选择是否通过">
+              <el-option
+                      v-for="item in passedOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </div>
+    </el-card>
+
     <!-- 卡片视图区域 -->
     <el-card>
       <!-- 搜索与批量删除区域 -->
@@ -178,6 +223,11 @@
             currentPage: 1,
             orderBy: [],
             pageSize: 5,
+          },
+          commentFilter: {
+            userId: null,
+            checked: null,
+            passed: null
           }
         },
         subQueryInfo: {
@@ -205,6 +255,16 @@
           {value: 'PASS', label: '审核通过'},
           {value: 'VIOLATE', label: '含暴力信息'},
           {value: 'ELSE', label: '其他'}
+        ],
+        //是否通过审核
+        passedOptions: [
+          {value: true, label: '通过'},
+          {value: false, label: '未通过'}
+        ],
+        //是否已经审核
+       checkedOptions: [
+          {value: true, label: '已经审核'},
+          {value: false, label: '未审核'}
         ],
         // 控制审核评论对话框的显示与隐藏
         inspectDialogVisible: false,
@@ -467,6 +527,16 @@
         this.commentId = lastExpandId;
         console.log('展开的评论id', this.commentId);
         this.getSubCommentList(lastExpandId);
+      },
+      //重置搜索表单
+      ResetSearch() {
+        const originalFilter = {
+          userId: null,
+          checked: null,
+          passed: null
+        };
+        this.queryInfo.commentFilter = originalFilter;
+        this.getCommentList();
       }
     },
     watch: {

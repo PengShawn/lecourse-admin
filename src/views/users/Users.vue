@@ -14,40 +14,54 @@
         <span>筛选搜索</span>
         <el-button
                 style="float: right"
-                @click="handleSearchList()"
+                @click="getUserList"
                 type="primary"
                 size="small">
           查询结果
         </el-button>
-        <el-button style="float: right;margin-right: 15px" @click="handleResetSearch()" size="small">
+        <el-button style="float: right;margin-right: 15px" @click="ResetSearch" size="small">
           重置
         </el-button>
       </div>
       <div style="margin-top: 15px;">
-        <el-form :inline="true" v-model="listQuery" size="small" label-width="140px">
-          <el-form-item label="输入搜索：">
-            <el-input style="width: 203px" v-model="listQuery.keyword" placeholder="课程名称"></el-input>
+        <el-form :inline="true" v-model="queryInfo.userFilter" size="small" label-width="140px" ref="searchForm">
+          <el-form-item label="输入搜索：" prop="username">
+            <el-input style="width: 203px" v-model="queryInfo.userFilter.username" placeholder="用户名称"></el-input>
           </el-form-item>
-          <el-form-item label="课程id：">
-            <el-input style="width: 203px" v-model="listQuery.productSn" placeholder="课程id"></el-input>
-          </el-form-item>
-          <el-form-item label="课程分类：">
-            <el-cascader clearable v-model="selectCourseValue" :options="courseOptions">
-            </el-cascader>
-          </el-form-item>
-          <el-form-item label="作者名称：">
-            <el-input style="width: 203px" v-model="listQuery.keyword" placeholder="作者名称"></el-input>
-          </el-form-item>
-          <el-form-item label="审核状态：">
-            <el-select v-model="verifyStatusValue" placeholder="全部" clearable>
+          <el-form-item label="性别：" prop="gender">
+            <el-select v-model="queryInfo.userFilter.gender" placeholder="请选择性别">
               <el-option
-                      v-for="item in verifyStatusOptions"
+                      v-for="item in genderOptions"
                       :key="item.value"
                       :label="item.label"
                       :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label="地区：" prop="region">
+            <div class="block">
+              <el-cascader
+                      size="large"
+                      :options="region"
+                      v-model="searchSelectedRegion"
+                      @change="searchRegionChange">
+              </el-cascader>
+            </div>
+          </el-form-item>
+          <el-form-item label="角色：" prop="role">
+            <el-select v-model="queryInfo.userFilter.role" placeholder="请选择角色">
+              <el-option
+                      v-for="item in roleOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <!--          <el-form-item label="有效状态：">-->
+          <!--            <el-switch disabled v-model="!queryInfo.userFilter.del">-->
+          <!--            </el-switch>-->
+          <!--          </el-form-item>-->
         </el-form>
       </div>
     </el-card>
@@ -57,7 +71,7 @@
       <!-- 搜索与添加区域 -->
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-input placeholder="用户名模糊搜索" v-model="searchFilter" clearable >
+          <el-input placeholder="用户名模糊搜索" v-model="searchFilter" clearable>
             <el-button slot="append" icon="el-icon-search" disabled></el-button>
           </el-input>
         </el-col>
@@ -145,7 +159,7 @@
         <el-form-item label="用户名" prop="username">
           <el-input v-model="addForm.username"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password" >
+        <el-form-item label="密码" prop="password">
           <el-input v-model="addForm.password" show-password></el-input>
         </el-form-item>
         <el-form-item label="性别" prop="gender">
@@ -177,6 +191,16 @@
                     placeholder="选择日期"
                     :picker-options="birthdayOptions">
             </el-date-picker>
+          </div>
+        </el-form-item>
+        <el-form-item label="地区" prop="region">
+          <div class="block">
+            <el-cascader
+                    size="large"
+                    :options="region"
+                    v-model="selectedRegion"
+                    @change="regionChange">
+            </el-cascader>
           </div>
         </el-form-item>
       </el-form>
@@ -213,6 +237,27 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="生日" prop="birthday">
+          <div class="block">
+            <el-date-picker
+                    v-model="editForm.birthday"
+                    align="left"
+                    type="date"
+                    placeholder="选择日期"
+                    :picker-options="birthdayOptions">
+            </el-date-picker>
+          </div>
+        </el-form-item>
+        <el-form-item label="地区" prop="region">
+          <div class="block">
+            <el-cascader
+                    size="large"
+                    :options="region"
+                    v-model="editSelectedRegion"
+                    @change="editRegionChange">
+            </el-cascader>
+          </div>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
@@ -241,7 +286,17 @@
 </template>
 
 <script>
-  import {fetchUserList,addUser,getUserInfo,updateUser,deleteUser,updateUserRole,batchDeleteUser} from '@/api/users'
+  import {
+    fetchUserList,
+    addUser,
+    getUserInfo,
+    updateUser,
+    deleteUser,
+    updateUserRole,
+    batchDeleteUser
+  } from '@/api/users';
+  import {provinceAndCityData, CodeToText, TextToCode} from 'element-china-area-data'
+
   export default {
     data() {
       return {
@@ -249,9 +304,16 @@
         queryInfo: {
           listParam: {
             currentPage: 1,
-            orderBy: [
-            ],
+            orderBy: [],
             pageSize: 5,
+          },
+          userFilter: {
+            username: null,
+            role: null,
+            province: null,
+            city: null,
+            gender: null,
+            del: null
           }
         },
         userList: [],
@@ -265,7 +327,9 @@
           password: '',
           gender: '',
           role: '',
-          birthday: ''
+          birthday: '',
+          province: '',
+          city: ''
         },
         // 添加表单的验证规则对象
         addFormRules: {
@@ -327,14 +391,18 @@
             }
           }]
         },
+        //地区选择
+        region: provinceAndCityData,
+        //增加表单选中的地区
+        selectedRegion: [],
         // 控制修改用户对话框的显示与隐藏
         editDialogVisible: false,
         // 查询到的用户信息对象
         editForm: {},
+        //修改表单选中的地区
+        editSelectedRegion: [],
         // 修改表单的验证规则对象
-        editFormRules: {
-
-        },
+        editFormRules: {},
         // 控制分配角色对话框的显示与隐藏
         setRoleDialogVisible: false,
         // 需要被分配角色的用户信息
@@ -342,74 +410,7 @@
         // 已选中的角色值
         selectedRole: '',
         //筛选搜索
-        listQuery: [],
-        selectCourseValue: [],
-        courseOptions: [
-          {
-            value: 'zhinan',
-            label: '指南',
-            children: [{
-              value: 'axure',
-              label: 'Axure Components'
-            }, {
-              value: 'skerch',
-              label: 'Sketch Templates'
-            }, {
-              value: 'zujianjiaohu',
-              label: '组件交互文档'
-            }, {
-              value: 'zujianjiaohu',
-              label: '交互文档'
-            }]
-          },
-          {
-            value: 'zujian',
-            label: '组件',
-            children: [{
-              value: 'axure',
-              label: 'Axure Components'
-            }, {
-              value: 'skerch',
-              label: 'Sketch Templates'
-            }, {
-              value: 'zujianjiaohu',
-              label: '组件交互文档'
-            }, {
-              value: 'zujianjiaohu',
-              label: '组件交互文档'
-            }]
-          },
-          {
-            value: 'ziyuan',
-            label: '资源',
-            children: [{
-              value: 'axure',
-              label: 'Axure Components'
-            }, {
-              value: 'sketch',
-              label: 'Sketch Templates'
-            }, {
-              value: 'jiaohu',
-              label: '组件交互文档'
-            }, {
-              value: 'zujianjiaohu',
-              label: '组件交互文档'
-            }]
-          },
-          {}
-        ],   //课程二级分类列表
-        verifyStatusOptions: [
-          {
-            value: '选项1',
-            label: '审核通过'
-          }, {
-            value: '选项2',
-            label: '待审核'
-          }, {
-            value: '选项3',
-            label: '审核不通过'
-          }],   //审核状态列表
-        verifyStatusValue: '',
+        searchSelectedRegion: [], //筛选地区
         selectedId: [] //批量删除id
       }
     },
@@ -419,32 +420,32 @@
     methods: {
       getUserList() {
         fetchUserList(this.queryInfo).then(res => {
-          console.log('获取用户列表',res);
+          console.log('获取用户列表', res);
           this.userList = res.payload.userList;
           this.total = res.payload.listParam.totalNum;
         }).catch(error => console.log(error))
       },
       //角色的后台数据转化显示
       roleStateFormat(row, column) {
-        if(row.role === 'ADMIN') {
+        if (row.role === 'ADMIN') {
           return '管理员'
-        }else if(row.role === 'USER')  {
+        } else if (row.role === 'USER') {
           return '用户'
-        }else if(row.role === 'VERIFIED')  {
+        } else if (row.role === 'VERIFIED') {
           return '审核者'
-        }else if(row.role === 'MERCHANT')  {
+        } else if (row.role === 'MERCHANT') {
           return '商家'
-        }else {
+        } else {
           return '新增'
         }
       },
       //性别的后台数据转化显示
       genderStateFormat(row, column) {
-        if(row.gender === 'MALE') {
+        if (row.gender === 'MALE') {
           return '男'
-        }else if(row.gender === 'FEMALE')  {
+        } else if (row.gender === 'FEMALE') {
           return '女'
-        }else {
+        } else {
           return '其他'
         }
       },
@@ -466,6 +467,21 @@
       // 监听添加用户对话框的关闭事件
       addDialogClosed() {
         this.$refs.addFormRef.resetFields()
+      },
+      //增加用户选择地区
+      regionChange(region) {
+        this.addForm.province = region[0];
+        this.addForm.city = region[1]
+      },
+      //修改用户选择地区
+      editRegionChange(region) {
+        this.editForm.province = region[0];
+        this.editForm.city = region[1]
+      },
+      //筛选用户选择地区
+      searchRegionChange(region) {
+        this.queryInfo.userFilter.province = region[0];
+        this.queryInfo.userFilter.city = region[1]
       },
       // 点击按钮，添加新用户
       handleAddUser() {
@@ -495,7 +511,7 @@
       editUserInfo() {
         this.$refs.editFormRef.validate(async valid => {
           if (!valid) return;
-          console.log('修改用户表',this.editForm);
+          console.log('修改用户表', this.editForm);
           updateUser(this.editForm.id, this.editForm).then(res => {
             // 提示修改成功
             this.$message.success('更新用户信息成功！');
@@ -565,11 +581,13 @@
       },
       //处理选择变化
       handleSelectionChange(val) {
-        this.selectedId = val.map((item)=>{return item.id});
+        this.selectedId = val.map((item) => {
+          return item.id
+        });
       },
       //批量删除
       async batchDelete() {
-        if(this.selectedId.length === 0){
+        if (this.selectedId.length === 0) {
           return this.$message.info('未选中用户')
         }
         // 弹框询问用户是否删除数据
@@ -591,12 +609,24 @@
           this.$message.success('删除用户成功！')
           this.getUserList()
         }).catch(error => console.log(error))
+      },
+      ResetSearch() {
+        const originalFilter = {
+          username: null,
+          role: null,
+          province: null,
+          city: null,
+          gender: null,
+          del: null
+        };
+        this.queryInfo.userFilter = originalFilter;
+        this.getUserList();
       }
     },
     watch: {
-      searchFilter: function(val, oldVal){
-        this.userList = this.userList.filter( item => (~item.username.indexOf(val)));
-        if(val === '') this.getUserList();
+      searchFilter: function (val, oldVal) {
+        this.userList = this.userList.filter(item => (~item.username.indexOf(val)));
+        if (val === '') this.getUserList();
       }
     }
   }
