@@ -84,7 +84,8 @@
       </el-row>
 
       <!-- 用户列表区域 -->
-      <el-table :data="userList" border stripe @selection-change="handleSelectionChange" ref="seclectedList">
+      <el-table :data="userList" border stripe @selection-change="handleSelectionChange" ref="seclectedList"
+                @sort-change="changeTableSort">
         <!-- 选择多行 -->
         <el-table-column
                 type="selection"
@@ -116,9 +117,9 @@
 
         <!-- 展示内容区域-->
         <el-table-column type="index"></el-table-column>
-        <el-table-column label="用户名" prop="username"></el-table-column>
-        <el-table-column label="微信昵称" prop="nickname"></el-table-column>
-        <el-table-column label="性别" prop="gender" :formatter="genderStateFormat"></el-table-column>
+        <el-table-column sortable label="用户名" prop="username"></el-table-column>
+        <el-table-column sortable label="微信昵称" prop="nickname"></el-table-column>
+        <el-table-column sortable label="性别" prop="gender" :formatter="genderStateFormat"></el-table-column>
         <el-table-column label="角色" prop="role" :formatter="roleStateFormat"></el-table-column>
         <el-table-column label="有效状态">
           <template slot-scope="scope">
@@ -621,6 +622,9 @@
         };
         this.queryInfo.userFilter = originalFilter;
         this.getUserList();
+      },
+      changeTableSort(column) {
+        console.log(column);
       }
     },
     watch: {

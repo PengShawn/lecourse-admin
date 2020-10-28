@@ -87,9 +87,9 @@
               </el-table-column>
               <!-- 二级评论展示内容区域-->
               <el-table-column type="index"></el-table-column>
-              <el-table-column label="评价内容" prop="text"></el-table-column>
-              <el-table-column label="评价用户" prop="userId"></el-table-column>
-              <el-table-column label="类别" prop="type"></el-table-column>
+              <el-table-column sortable label="评价内容" prop="text"></el-table-column>
+              <el-table-column sortable label="评价用户" prop="userId"></el-table-column>
+              <el-table-column sortable label="类别" prop="type"></el-table-column>
               <el-table-column label="通过状态">
                 <template slot-scope="scope">
                   <el-switch disabled v-model="scope.row.passed">
@@ -122,9 +122,9 @@
 
         <!-- 一级评论展示内容区域-->
         <el-table-column type="index"></el-table-column>
-        <el-table-column label="评价内容" prop="text"></el-table-column>
-        <el-table-column label="评价用户" prop="userId"></el-table-column>
-        <el-table-column label="类别" prop="type"></el-table-column>
+        <el-table-column sortable label="评价内容" prop="text"></el-table-column>
+        <el-table-column sortable label="评价用户" prop="userId"></el-table-column>
+        <el-table-column sortable label="类别" prop="type"></el-table-column>
         <el-table-column label="通过状态">
           <template slot-scope="scope">
             <el-switch disabled v-model="scope.row.passed">

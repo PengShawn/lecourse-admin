@@ -6,6 +6,9 @@
         <img src="../assets/oldwoman.png" style="height: 50px; width: 60px; margin-left: 10px;" alt="">
         <span>乐龄后台管理系统</span>
       </div>
+      <div>
+        <span>你好！{{username}}</span>
+      </div>
       <el-button type="info" @click="logout">退出</el-button>
     </el-header>
     <!--    页面主体区域-->
@@ -45,6 +48,44 @@
           </el-submenu>
 
           <el-submenu index="2">
+            <!-- 一级菜单模板区-->
+            <template slot="title">
+              <!-- 图标-->
+              <i class="el-icon-bangzhu"></i>
+              <!-- 文本 -->
+              <span>社团管理</span>
+            </template>
+            <!--二级菜单-->
+            <el-menu-item index="clubs" >
+              <template slot="title">
+                <!-- 图标-->
+                <i class="el-icon-burger"></i>
+                <!-- 文本 -->
+                <span>社团列表</span>
+              </template>
+            </el-menu-item>
+          </el-submenu>
+
+          <el-submenu index="3">
+            <!-- 一级菜单模板区-->
+            <template slot="title">
+              <!-- 图标-->
+              <i class="el-icon-document"></i>
+              <!-- 文本 -->
+              <span>贴子管理</span>
+            </template>
+            <!--二级菜单-->
+            <el-menu-item index="posts" >
+              <template slot="title">
+                <!-- 图标-->
+                <i class="el-icon-document-copy"></i>
+                <!-- 文本 -->
+                <span>帖子列表</span>
+              </template>
+            </el-menu-item>
+          </el-submenu>
+
+          <el-submenu index="4">
             <!-- 一级菜单模板区-->
             <template slot="title">
               <!-- 图标-->
@@ -90,7 +131,11 @@
       return {
         //是否折叠
         isCollapse: false,
+        username: '',
       }
+    },
+    created() {
+      this.username = window.sessionStorage.getItem('username')
     },
     methods: {
       async logout() {
@@ -102,9 +147,6 @@
       toggleCollapse() {
         this.isCollapse = ! this.isCollapse
       }
-    },
-    created() {
-
     }
   }
 </script>

@@ -5,7 +5,10 @@ import Home from "../views/Home";
 import Welcome from "../views/Welcome";
 import Users from "../views/users/Users";
 import Comments from "../views/users/Comments";
-
+import Courses from "../views/courses/Courses";
+import Chapters from "../views/courses/Chapters";
+import Posts from "../views/posts/Posts";
+import Clubs from "../views/clubs/Clubs";
 
 Vue.use(VueRouter);
 
@@ -25,7 +28,11 @@ const routes = [
     children: [
       {path: '/welcome', component: Welcome},
       {path: '/users', component: Users},
-      {path: '/comments', component: Comments}
+      {path: '/comments', component: Comments},
+      {path: '/courses', component: Courses},
+      {path: '/chapters', component: Chapters},
+      {path: '/clubs', component: Clubs},
+      {path: '/posts', component: Posts},
     ]
   }
 ];

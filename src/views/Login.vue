@@ -69,6 +69,7 @@
 
             //保存登陆者userId，等待接口完善后修改
             window.sessionStorage.setItem('userId', '123');
+            window.sessionStorage.setItem('username', this.loginForm.username);
             if(res.errorCode === '200')
               this.$router.push('/home');
           });
