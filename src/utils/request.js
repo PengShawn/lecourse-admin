@@ -3,13 +3,13 @@ import { Message, MessageBox } from 'element-ui'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: 'http://47.102.202.209:8080', // api的base_url
+  baseURL: 'http://106.15.192.234:8080', // api的base_url
   timeout: 15000 // 请求超时时间
 });
 
 // request拦截器
 service.interceptors.request.use(config => {
-  config.headers.Authorization = window.sessionStorage.getItem('token');
+  config.headers.token = window.sessionStorage.getItem('token');
   return config
 }, error => {
   // Do something with request error
@@ -24,7 +24,7 @@ service.interceptors.response.use(
        * errorCode为非'200'是抛错 可结合自己业务进行修改
        */
       const res = response.data;
-      if (res.errorCode !== '200') {
+      if (res.errorCode !== '0') {
         Message({
           message: res.errorMessage,
           type: 'error',

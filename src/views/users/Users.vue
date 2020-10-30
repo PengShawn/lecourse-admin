@@ -130,7 +130,7 @@
         <el-table-column label="操作" width="180px">
           <template slot-scope="scope">
             <!-- 修改按钮 -->
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)"></el-button>
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
             <!-- 删除按钮 -->
             <el-button type="danger" icon="el-icon-delete" size="mini"
                        @click="removeUserById(scope.row.id)"></el-button>
@@ -305,7 +305,6 @@
         queryInfo: {
           listParam: {
             currentPage: 1,
-            orderBy: [],
             pageSize: 5,
           },
           userFilter: {
@@ -326,8 +325,8 @@
         addForm: {
           username: '',
           password: '',
-          gender: '',
-          role: '',
+          gender: 'MALE',
+          role: 'USER',
           birthday: '',
           province: '',
           city: ''
@@ -337,9 +336,9 @@
           username: [
             {required: true, message: '请输入用户名', trigger: 'blur'},
             {
-              min: 3,
-              max: 10,
-              message: '用户名的长度在3~20个字符之间',
+              min: 2,
+              max: 15,
+              message: '用户名的长度在2~15个字符之间',
               trigger: 'blur'
             }
           ],
@@ -420,6 +419,7 @@
     },
     methods: {
       getUserList() {
+        console.log(this.queryInfo);
         fetchUserList(this.queryInfo).then(res => {
           console.log('获取用户列表', res);
           this.userList = res.payload.userList;
@@ -471,18 +471,28 @@
       },
       //增加用户选择地区
       regionChange(region) {
-        this.addForm.province = region[0];
-        this.addForm.city = region[1]
+        this.addForm.province = CodeToText[ region[0] ];
+        if(CodeToText[ region[1] ] === '市辖区')
+          this.addForm.city = CodeToText[ region[0] ];
+        else
+          this.addForm.city = CodeToText[ region[1] ];
       },
       //修改用户选择地区
       editRegionChange(region) {
-        this.editForm.province = region[0];
-        this.editForm.city = region[1]
+        this.editForm.province = CodeToText[ region[0] ];
+        if(CodeToText[ region[1] ] === '市辖区')
+          this.editForm.city = CodeToText[ region[0] ];
+        else
+          this.editForm.city = CodeToText[ region[1] ];
+
       },
       //筛选用户选择地区
       searchRegionChange(region) {
-        this.queryInfo.userFilter.province = region[0];
-        this.queryInfo.userFilter.city = region[1]
+        this.queryInfo.userFilter.province = CodeToText[ region[0] ];
+        if(CodeToText[ region[1] ] === '市辖区')
+          this.queryInfo.userFilter.city = CodeToText[ region[0] ];
+        else
+          this.queryInfo.userFilter.city = CodeToText[ region[1] ];
       },
       // 点击按钮，添加新用户
       handleAddUser() {
@@ -498,11 +508,14 @@
         })
       },
       // 展示编辑用户的对话框
-      async showEditDialog(id) {
-        getUserInfo(id).then(res => {
-          this.editForm = res.payload;
-          this.editDialogVisible = true
-        }).catch(error => console.log(error))
+      async showEditDialog(row) {
+        // getUserInfo(id).then(res => {
+        //   this.editForm = res.payload;
+        //   console.log('获取修改用户信息',this.editForm);
+        //   this.editDialogVisible = true
+        // }).catch(error => console.log(error))
+        this.editForm = row;
+        this.editDialogVisible = true
       },
       // 监听修改用户对话框的关闭事件
       editDialogClosed() {
@@ -518,6 +531,8 @@
             this.$message.success('更新用户信息成功！');
             // 关闭对话框
             this.editDialogVisible = false;
+            //重置修改用户表单地区
+            this.editSelectedRegion = [];
             // 刷新数据列表
             this.getUserList()
           }).catch(error => console.log(error))

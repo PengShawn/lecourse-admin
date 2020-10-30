@@ -41,7 +41,7 @@
           //验证用户名是否合法
           username: [
             {required: true, message: '请输入用户名', trigger: 'blur'},
-            {min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur'}
+            {min: 2, max: 15, message: '长度在 2 到 15 个字符', trigger: 'blur'}
           ],
           //验证密码是否合法
           password: [
@@ -65,13 +65,10 @@
 
           login(this.loginForm).then(res => {
             console.log('登录页面',res);
-            window.sessionStorage.setItem('token', res.payload);
-
-            //保存登陆者userId，等待接口完善后修改
-            window.sessionStorage.setItem('userId', '123');
+            window.sessionStorage.setItem('token', res.payload.token);
+            window.sessionStorage.setItem('userId', res.payload.userId);
             window.sessionStorage.setItem('username', this.loginForm.username);
-            if(res.errorCode === '200')
-              this.$router.push('/home');
+            this.$router.push('/home');
           });
         })
       }
