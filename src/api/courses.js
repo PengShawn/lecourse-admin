@@ -45,3 +45,17 @@ export function auditCourse(courseId, auditForm) {
     data: auditForm
   })
 }
+
+export function getCourseHobby(id) {
+  return request({
+    url: `/course/${id}/hobby`,
+    method: 'get'
+  })
+}
+
+export function getCourseTag(id) {
+  return request({
+    url: `/course/${id}/tag`,
+    method: 'get'
+  })
+}

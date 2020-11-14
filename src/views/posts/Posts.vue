@@ -1,17 +1,15 @@
 <template>
   <div>
     <h1>说说列表</h1>
-    <image-upload></image-upload>
-    <video-upload></video-upload>
+    <select-tag></select-tag>
   </div>
 </template>
 
 <script>
-  import ImageUpload from "../../components/upload/ImageUpload";
-  import VideoUpload from "../../components/upload/VideoUpload";
+  import SelectTag from "../../components/selectTag/SelectTag";
   export default {
     name: "Posts",
-    components: {ImageUpload, VideoUpload}
+    components: {SelectTag}
   }
 </script>
 

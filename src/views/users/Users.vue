@@ -419,7 +419,6 @@
     },
     methods: {
       getUserList() {
-        console.log(this.queryInfo);
         fetchUserList(this.queryInfo).then(res => {
           console.log('获取用户列表', res);
           this.userList = res.payload.userList;

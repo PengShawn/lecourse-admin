@@ -240,7 +240,7 @@
             commentId: ''
           }
         },
-        commentId: '',
+        commentId: null,
         commentList: [],
         subCommentList: [],
         commentInfo: {},
@@ -258,12 +258,12 @@
         ],
         //是否通过审核
         passedOptions: [
-          {value: true, label: '通过'},
+          {value: true, label: '已通过'},
           {value: false, label: '未通过'}
         ],
         //是否已经审核
        checkedOptions: [
-          {value: true, label: '已经审核'},
+          {value: true, label: '已审核'},
           {value: false, label: '未审核'}
         ],
         // 控制审核评论对话框的显示与隐藏
@@ -426,7 +426,7 @@
         }
         this.inspectForm.type = this.selectedType;
         this.inspectForm.commentId = this.commentInfo.id;
-        this.inspectForm.inspectorId = window.sessionStorage.getItem('userId')
+        this.inspectForm.inspectorId = window.sessionStorage.getItem('userId');
         InspectComment(this.inspectForm).then(res => {
           console.log('审核评价',res);
           this.$message.success('审核评价成功！');

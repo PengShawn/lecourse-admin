@@ -21,3 +21,25 @@ export function videoUpload(data) {
     }
   })
 }
+
+export function deleteImage(fileUrl) {
+  return request({
+    url: '/upload/image',
+    method: 'delete',
+    params: {fileUrl: fileUrl},
+    headers:{
+      'Content-Type':'application/x-www-form-urlencoded'
+    }
+  })
+}
+
+export function deleteVideo(fileUrl) {
+  return request({
+    url: '/upload/video',
+    method: 'delete',
+    params: {fileUrl: fileUrl},
+    headers:{
+      'Content-Type':'application/x-www-form-urlencoded'
+    }
+  })
+}

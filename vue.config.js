@@ -18,11 +18,11 @@ module.exports = {
   },
   pwa: {
     iconPaths: {
-      favicon32: 'favicon.ico',
-      favicon16: 'favicon.ico',
-      appleTouchIcon: 'favicon.ico',
-      maskIcon: 'favicon.ico',
-      msTileImage: 'favicon.ico'
+      favicon32: 'lecourse.ico',
+      favicon16: 'lecourse.ico',
+      appleTouchIcon: 'lecourse.ico',
+      maskIcon: 'lecourse.ico',
+      msTileImage: 'lecourse.ico'
     }
   }
 };
