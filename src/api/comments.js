@@ -15,7 +15,7 @@ export function deleteCommentById(id) {
   })
 }
 
-export function InspectComment(inspectForm) {
+export function inspectComment(inspectForm) {
   return request({
     url: '/comment/audit',
     method: 'post',

@@ -15,7 +15,7 @@ export function deleteSubCommentById(id) {
   })
 }
 
-export function InspectSubComment(commentId, inspectForm) {
+export function inspectSubComment(commentId, inspectForm) {
   return request({
     url: `/comment/sub/${commentId}/audit`,
     method: 'put',

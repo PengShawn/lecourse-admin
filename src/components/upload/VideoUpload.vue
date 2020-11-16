@@ -28,6 +28,7 @@
         fileList: [],
         src: '',
         videoUrl: '',
+        videoDuration: 0
       }
     },
     computed: {
@@ -54,6 +55,9 @@
           this.$message.error('只允许上传视频');
           return false;
         }
+        let url = URL.createObjectURL(file);
+        let audioElement = new Audio(url);
+        this.videoDuration = audioElement.duration; //获取当前视频长度
         // if(size1024M){
         //   this.fileList.splice(0, 1);
         //   this.$message.error('视频大小不能超过1024M');
@@ -63,7 +67,11 @@
       onSuccess(res, file, fileList) {
         console.log('上传视频成功返回',res);
         this.videoUrl = res.payload;
-        this.$emit('videoUrl', res.payload);
+        const videoInfo = {
+          videoUrl: res.payload,
+          videoDuration: this.videoDuration
+        };
+        this.$emit('videoInfo', videoInfo);
         this.$message.success('上传视频成功');
       },
       onRemove() {

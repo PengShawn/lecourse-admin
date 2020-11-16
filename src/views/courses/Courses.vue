@@ -178,12 +178,12 @@
         </div>
       </el-form>
       <label>介绍视频:</label>
-      <video-upload @videoUrl="uploadVideoSuccess" style="margin-left: 70px"></video-upload>
+      <video-upload @videoInfo="uploadVideoSuccess" style="margin-left: 70px"></video-upload>
       <label>课程封面:</label>
       <image-upload @photoUrl="uploadImageSuccess" style="margin-left: 70px"></image-upload>
 
       <label>课程标签:</label>
-      <select-tag @selectValue="handleAddTagIdList" style="margin-left: 70px"></select-tag>
+      <select-tag @selectValue="handleAddTagIdList" :tagIdList="tagIdList" style="margin-left: 70px"></select-tag>
       <!-- 底部区域 -->
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialogVisible = false">取 消</el-button>
@@ -193,37 +193,69 @@
 
     <!-- 修改课程的对话框 -->
     <el-dialog title="修改课程" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
-      <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
+      <el-form :model="editForm" ref="editFormRef" label-width="70px">
         <el-form-item label="课程id">
           <el-input v-model="editForm.id" disabled></el-input>
         </el-form-item>
-        <el-form-item label="课程描述" prop="email">
-          <el-input v-model="editForm.description"></el-input>
+        <el-form-item label="课程题目" prop="email">
+          <el-input v-model="editForm.title"></el-input>
         </el-form-item>
-        <el-form-item label="课程封面" prop="mobile">
-          <el-input v-model="editForm.photo_url"></el-input>
+        <el-form-item label="课程描述" prop="email">
+          <el-input type="textarea" v-model="editForm.description"></el-input>
         </el-form-item>
       </el-form>
+      <label>介绍视频:</label>
+      <video-upload @videoInfo="uploadVideoSuccess" style="margin-left: 70px"></video-upload>
+      <label>课程封面:</label>
+      <image-upload @photoUrl="uploadImageSuccess" style="margin-left: 70px"></image-upload>
+
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="">确 定</el-button>
+        <el-button type="primary" @click="editCourseInfo">确 定</el-button>
       </span>
     </el-dialog>
 
+    <!-- 审核课程的对话框 -->
+    <el-dialog title="审核课程" :visible.sync="inspectDialogVisible" width="50%" @close="inspectDialogClosed">
+      <div>
+        <p>课程题目：{{courseInfo.title}}</p>
+        <p>创建人id：{{courseInfo.userId}}</p>
+        <p>课程描述：</p>
+        <textarea readonly rows="3" cols="80">{{courseInfo.description}}</textarea>
+        <el-form :model="inspectForm" :rules="inspectFormRules" ref="inspectFormRef" label-width="80px">
+          <el-form-item label="审核信息" prop="details">
+            <el-input v-model="inspectForm.details"></el-input>
+          </el-form-item>
+          <el-form-item label="审核种类" prop="type">
+            <el-select v-model="selectedType" placeholder="请选择">
+              <el-option v-for="item in inspectTypeOptions" :key="item.id" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="inspectDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="inspectInfo">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+  //组件
   import ImageUpload from "@/components/upload/ImageUpload";
   import VideoUpload from "@/components/upload/VideoUpload";
   import SelectTag from "@/components/selectTag/SelectTag";
-  import {fetchCourseList, addCourse, auditCourse, getCourseHobby, getCourseTag} from "@/api/courses";
+  import EditCourse from "./components/EditCourse";
+  //接口
+  import {fetchCourseList, addCourse, updateCourse, auditCourse, getCourseHobby, getCourseTag} from "@/api/courses";
   import {getUserInfo} from "@/api/users";
   import {fetchHobbyList} from "@/api/hobby";
 
   export default {
     name: "Courses",
-    components: {ImageUpload, VideoUpload,SelectTag},
+    components: {ImageUpload, VideoUpload,SelectTag,EditCourse},
     data() {
       return {
         // 获取课程列表的参数对象
@@ -242,6 +274,7 @@
         },
         //课程
         courseList: [],
+        courseInfo: {},
         //所有hobby
         hobbyList: [],
         //展开后信息
@@ -254,6 +287,7 @@
         editDialogVisible: false,
         // 查询到的课程信息对象
         addDialogVisible: false,
+        inspectDialogVisible: false,
         addCourseInputCourse: {
           city: "13000000",
           description: "",
@@ -290,8 +324,29 @@
           ],
         },
         editForm: {},
-        // 修改表单的验证规则对象
-        editFormRules: {},
+        //审核种类
+        inspectTypeOptions: [
+          {value: 'PASS', label: '审核通过'},
+          {value: 'VIOLATE', label: '含暴力信息'},
+          {value: 'ELSE', label: '其他原因(不通过)'}
+        ],
+        inspectForm: {
+          courseId: '',
+          details: '',
+          inspectorId: '',
+          type: ''
+        },
+        inspectFormRules: {
+          details: [
+            {required: true, message: '请输入审核信息', trigger: 'blur'},
+            {
+              min: 1,
+              message: '审核信息不能为空',
+              trigger: 'blur'
+            }
+          ],
+        },
+        selectedType: '',
         //是否通过审核
         passedOptions: [
           {value: true, label: '已通过'},
@@ -337,13 +392,14 @@
         this.getCourseList();
       }
       ,
-      //上传图片组件传来url
+      //增加课程上传图片组件传来url
       uploadImageSuccess(photoUrl) {
         this.addCourseInputCourse.photoUrl = photoUrl;
       },
-      //上传视频组件传来url
-      uploadVideoSuccess(videoUrl) {
-        this.addCourseInputCourse.videoUrl = videoUrl;
+      //添加课程上传视频组件传来url
+      uploadVideoSuccess(videoInfo) {
+        this.addCourseInputCourse.videoUrl = videoInfo.videoUrl;
+        this.addCourseInputCourse.videoDuration = videoInfo.videoDuration;
       },
       //选择标签组件传来的标签list
       handleAddTagIdList(selectValue) {
@@ -381,7 +437,6 @@
       ,
       // 展示编辑章节视频的对话框
       async showEditDialog(id) {
-
         this.editForm = this.courseList[0];
         this.editDialogVisible = true
       },
@@ -389,6 +444,45 @@
       editDialogClosed() {
         this.$refs.editFormRef.resetFields()
       },
+      //编辑课程上传图片组件传来url
+      editImageSuccess(photoUrl) {
+        this.editForm.photoUrl = photoUrl;
+      },
+      //编辑课程上传视频组件传来url
+      editVideoSuccess(videoInfo) {
+        this.editForm.videoUrl = videoInfo.videoUrl;
+        this.editForm.videoDuration = videoInfo.videoDuration;
+      },
+      //修改课程信息提交
+      editCourseInfo() {
+        updateCourse(this.editForm.id, this.editForm).then(res => {
+          this.$message.success('更新课程信息成功');
+          this.editDialogVisible = false;
+          this.getCourseList();
+        }).catch(error => console.log(error))
+      },
+      //审核课程
+      async inspectInfo() {
+        if(!this.selectedType) {
+          return this.$message.error('请选择审核类型')
+        }
+        this.inspectForm.type = this.selectedType;
+        this.inspectForm.courseId = this.courseInfo.id;
+        this.inspectForm.inspectorId = window.sessionStorage.getItem('userId');
+        auditCourse(this.inspectForm).then(res => {
+          console.log('审核课程',res);
+          this.$message.success('审核课程成功！');
+          this.getCourseList();
+          this.inspectDialogVisible = false
+        }).catch(error => console.log(error));
+      },
+
+      // 监听审核评论框的关闭事件
+      inspectDialogClosed() {
+        this.selectedType = '';
+        this.courseInfo = {}
+      },
+
       //展开课程详情
       async expandChange(row, expandedRows) {
         if (expandedRows.length === 0) return;
@@ -425,8 +519,9 @@
         this.getCourseList()
       },
       //展示审核课程的对话框
-      async showInspectDialog(courseInfo) {
-
+      showInspectDialog(courseInfo) {
+        this.courseInfo = courseInfo;
+        this.inspectDialogVisible = true;
       }
     },
     watch: {

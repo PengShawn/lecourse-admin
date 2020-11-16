@@ -102,9 +102,6 @@
               <el-form-item label="用户id:">
                 <span>{{ props.row.id }}</span>
               </el-form-item>
-              <el-form-item label="性别:">
-                <span>{{ props.row.gender }}</span>
-              </el-form-item>
               <el-form-item label="省份:">
                 <span>{{ props.row.province }}</span>
               </el-form-item>
@@ -154,117 +151,10 @@
     </el-card>
 
     <!-- 添加用户的对话框 -->
-    <el-dialog title="添加用户" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">
-      <!-- 内容主体区域 -->
-      <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="addForm.username"></el-input>
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="addForm.password" show-password></el-input>
-        </el-form-item>
-        <el-form-item label="性别" prop="gender">
-          <el-select v-model="addForm.gender" placeholder="请选择性别">
-            <el-option
-                    v-for="item in genderOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="角色" prop="role">
-          <el-select v-model="addForm.role" placeholder="请选择角色">
-            <el-option
-                    v-for="item in roleOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="生日" prop="birthday">
-          <div class="block">
-            <el-date-picker
-                    v-model="addForm.birthday"
-                    align="left"
-                    type="date"
-                    placeholder="选择日期"
-                    :picker-options="birthdayOptions">
-            </el-date-picker>
-          </div>
-        </el-form-item>
-        <el-form-item label="地区" prop="region">
-          <div class="block">
-            <el-cascader
-                    size="large"
-                    :options="region"
-                    v-model="selectedRegion"
-                    @change="regionChange">
-            </el-cascader>
-          </div>
-        </el-form-item>
-      </el-form>
-      <!-- 底部区域 -->
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="addDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleAddUser">确 定</el-button>
-      </span>
-    </el-dialog>
+    <add-user :AddDialogVisible="addDialogVisible" @addSuccess="handleAddSuccess"></add-user>
 
     <!-- 修改用户的对话框 -->
-    <el-dialog title="修改用户" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
-      <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
-        <el-form-item label="用户名">
-          <el-input v-model="editForm.username" disabled></el-input>
-        </el-form-item>
-        <el-form-item label="性别" prop="gender">
-          <el-select v-model="editForm.gender" placeholder="请选择性别">
-            <el-option
-                    v-for="item in genderOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="角色" prop="role">
-          <el-select v-model="editForm.role" placeholder="请选择角色">
-            <el-option
-                    v-for="item in roleOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="生日" prop="birthday">
-          <div class="block">
-            <el-date-picker
-                    v-model="editForm.birthday"
-                    align="left"
-                    type="date"
-                    placeholder="选择日期"
-                    :picker-options="birthdayOptions">
-            </el-date-picker>
-          </div>
-        </el-form-item>
-        <el-form-item label="地区" prop="region">
-          <div class="block">
-            <el-cascader
-                    size="large"
-                    :options="region"
-                    v-model="editSelectedRegion"
-                    @change="editRegionChange">
-            </el-cascader>
-          </div>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editUserInfo">确 定</el-button>
-      </span>
-    </el-dialog>
+    <edit-user :EditDialogVisible="editDialogVisible" :EditForm="editForm" @editSuccess="handleEditSuccess" ></edit-user>
 
     <!-- 分配角色的对话框 -->
     <el-dialog title="分配角色" :visible.sync="setRoleDialogVisible" width="50%" @close="setRoleDialogClosed">
@@ -289,16 +179,17 @@
 <script>
   import {
     fetchUserList,
-    addUser,
-    getUserInfo,
-    updateUser,
     deleteUser,
     updateUserRole,
     batchDeleteUser
   } from '@/api/users';
   import {provinceAndCityData, CodeToText, TextToCode} from 'element-china-area-data'
 
+  import AddUser from "./components/AddUser";
+  import EditUser from "./components/EditUser";
   export default {
+    name: "Users",
+    components: {AddUser,EditUser},
     data() {
       return {
         // 获取用户列表的参数对象
@@ -321,37 +212,12 @@
         searchFilter: '',  //模糊搜索
         // 控制添加用户对话框的显示与隐藏
         addDialogVisible: false,
-        // 添加用户的表单数据
-        addForm: {
-          username: '',
-          password: '',
-          gender: 'MALE',
-          role: 'USER',
-          birthday: '',
-          province: '',
-          city: ''
-        },
-        // 添加表单的验证规则对象
-        addFormRules: {
-          username: [
-            {required: true, message: '请输入用户名', trigger: 'blur'},
-            {
-              min: 2,
-              max: 15,
-              message: '用户名的长度在2~15个字符之间',
-              trigger: 'blur'
-            }
-          ],
-          password: [
-            {required: true, message: '请输入密码', trigger: 'blur'},
-            {
-              min: 6,
-              max: 15,
-              message: '密码的长度在6~15个字符之间',
-              trigger: 'blur'
-            }
-          ]
-        },
+        // 控制修改用户对话框的显示与隐藏
+        editDialogVisible: false,
+        // 修改用户前查询到的用户信息对象
+        editForm: {},
+        // 控制分配角色对话框的显示与隐藏
+        setRoleDialogVisible: false,
         //性别选择
         genderOptions: [
           {value: 'MALE', label: '男'},
@@ -395,16 +261,6 @@
         region: provinceAndCityData,
         //增加表单选中的地区
         selectedRegion: [],
-        // 控制修改用户对话框的显示与隐藏
-        editDialogVisible: false,
-        // 查询到的用户信息对象
-        editForm: {},
-        //修改表单选中的地区
-        editSelectedRegion: [],
-        // 修改表单的验证规则对象
-        editFormRules: {},
-        // 控制分配角色对话框的显示与隐藏
-        setRoleDialogVisible: false,
         // 需要被分配角色的用户信息
         userInfo: {},
         // 已选中的角色值
@@ -464,27 +320,6 @@
       async userStateChanged(userinfo) {
         console.log(userinfo)
       },
-      // 监听添加用户对话框的关闭事件
-      addDialogClosed() {
-        this.$refs.addFormRef.resetFields()
-      },
-      //增加用户选择地区
-      regionChange(region) {
-        this.addForm.province = CodeToText[ region[0] ];
-        if(CodeToText[ region[1] ] === '市辖区')
-          this.addForm.city = CodeToText[ region[0] ];
-        else
-          this.addForm.city = CodeToText[ region[1] ];
-      },
-      //修改用户选择地区
-      editRegionChange(region) {
-        this.editForm.province = CodeToText[ region[0] ];
-        if(CodeToText[ region[1] ] === '市辖区')
-          this.editForm.city = CodeToText[ region[0] ];
-        else
-          this.editForm.city = CodeToText[ region[1] ];
-
-      },
       //筛选用户选择地区
       searchRegionChange(region) {
         this.queryInfo.userFilter.province = CodeToText[ region[0] ];
@@ -493,49 +328,24 @@
         else
           this.queryInfo.userFilter.city = CodeToText[ region[1] ];
       },
-      // 点击按钮，添加新用户
-      handleAddUser() {
-        this.$refs.addFormRef.validate(async valid => {
-          if (!valid) return;
-          addUser(this.addForm).then(res => {
-            this.$message.success('添加用户成功！');
-            // 隐藏添加用户的对话框
-            this.addDialogVisible = false;
-            // 重新获取用户列表数据
-            this.getUserList()
-          }).catch(error => console.log(error))
-        })
+      //添加用户成功后关闭对话框
+      handleAddSuccess(addSuccess) {
+        // 隐藏添加用户的对话框
+        this.addDialogVisible = false;
+        // 重新获取用户列表数据
+        this.getUserList()
       },
       // 展示编辑用户的对话框
       async showEditDialog(row) {
-        // getUserInfo(id).then(res => {
-        //   this.editForm = res.payload;
-        //   console.log('获取修改用户信息',this.editForm);
-        //   this.editDialogVisible = true
-        // }).catch(error => console.log(error))
         this.editForm = row;
-        this.editDialogVisible = true
+        this.editDialogVisible = true;
       },
-      // 监听修改用户对话框的关闭事件
-      editDialogClosed() {
-        this.$refs.editFormRef.resetFields()
-      },
-      // 修改用户信息并提交
-      editUserInfo() {
-        this.$refs.editFormRef.validate(async valid => {
-          if (!valid) return;
-          console.log('修改用户表', this.editForm);
-          updateUser(this.editForm.id, this.editForm).then(res => {
-            // 提示修改成功
-            this.$message.success('更新用户信息成功！');
-            // 关闭对话框
-            this.editDialogVisible = false;
-            //重置修改用户表单地区
-            this.editSelectedRegion = [];
-            // 刷新数据列表
-            this.getUserList()
-          }).catch(error => console.log(error))
-        })
+      //修改用户成功后关闭对话框
+      handleEditSuccess(editSuccess) {
+        // 关闭对话框
+        this.editDialogVisible = false;
+        // 刷新数据列表
+        this.getUserList()
       },
       // 根据Id删除对应的用户信息
       async removeUserById(id) {
