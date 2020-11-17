@@ -58,7 +58,6 @@
         <el-button type="primary" @click="handleAddUser">确 定</el-button>
       </span>
     </el-dialog>
-
   </div>
 </template>
 
@@ -151,7 +150,10 @@
     methods: {
       // 监听添加用户对话框的关闭事件
       addDialogClosed() {
-        this.$refs.addFormRef.resetFields()
+        //重置表单
+        this.$refs.addFormRef.resetFields();
+        //将子组件addDialogVisible传回给父组件
+        this.$emit('update:AddDialogVisible',this.addDialogVisible);
       },
       //增加用户选择地区
       regionChange(region) {
@@ -168,6 +170,8 @@
           addUser(this.addForm).then(res => {
             this.$message.success('添加用户成功！');
             this.$emit('addSuccess', true);
+            //将父组件addDialogVisible设为false
+            this.$emit('update:AddDialogVisible', false);
           }).catch(error => console.log(error))
         })
       }
@@ -175,7 +179,7 @@
     watch: {
       'AddDialogVisible': {
         handler(val) {
-          console.log('父组件AddDialogVisible改变了',val);
+          //父组件中addDialogVisible改变就会传回给子组件赋值
           this.addDialogVisible = this.AddDialogVisible;
         },
         immediate: true

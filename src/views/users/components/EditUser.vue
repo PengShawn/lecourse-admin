@@ -118,7 +118,9 @@
     methods: {
       // 监听修改用户对话框的关闭事件
       editDialogClosed() {
-        this.$refs.editFormRef.resetFields()
+        this.$refs.editFormRef.resetFields();
+        //将子组件addDialogVisible传回给父组件
+        this.$emit('update:EditDialogVisible',this.editDialogVisible);
       },
       //修改用户选择地区
       editRegionChange(region) {
@@ -139,7 +141,8 @@
             //重置修改用户表单地区
             this.editSelectedRegion = [];
             this.$emit('editSuccess', true);
-
+            //将父组件editDialogVisible设为false
+            this.$emit('update:EditDialogVisible', false);
           }).catch(error => console.log(error))
         })
       },
@@ -147,14 +150,12 @@
     watch: {
       'EditDialogVisible': {
         handler(val) {
-          console.log('父组件EditDialogVisible改变了',val);
           this.editDialogVisible = this.EditDialogVisible;
         },
         immediate: true
       },
       'EditForm': {
         handler(val) {
-          console.log('父组件EditForm改变',val);
           this.editForm = this.EditForm;
         }
       },

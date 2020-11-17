@@ -151,10 +151,10 @@
     </el-card>
 
     <!-- 添加用户的对话框 -->
-    <add-user :AddDialogVisible="addDialogVisible" @addSuccess="handleAddSuccess"></add-user>
+    <add-user :AddDialogVisible.sync="addDialogVisible" @addSuccess="getUserList"></add-user>
 
     <!-- 修改用户的对话框 -->
-    <edit-user :EditDialogVisible="editDialogVisible" :EditForm="editForm" @editSuccess="handleEditSuccess" ></edit-user>
+    <edit-user :EditDialogVisible.sync="editDialogVisible" :EditForm="editForm" @editSuccess="getUserList" ></edit-user>
 
     <!-- 分配角色的对话框 -->
     <el-dialog title="分配角色" :visible.sync="setRoleDialogVisible" width="50%" @close="setRoleDialogClosed">
@@ -277,7 +277,7 @@
       getUserList() {
         fetchUserList(this.queryInfo).then(res => {
           console.log('获取用户列表', res);
-          this.userList = res.payload.userList;
+          this.userList = res.payload.postList;
           this.total = res.payload.listParam.totalNum;
         }).catch(error => console.log(error))
       },
@@ -328,24 +328,10 @@
         else
           this.queryInfo.userFilter.city = CodeToText[ region[1] ];
       },
-      //添加用户成功后关闭对话框
-      handleAddSuccess(addSuccess) {
-        // 隐藏添加用户的对话框
-        this.addDialogVisible = false;
-        // 重新获取用户列表数据
-        this.getUserList()
-      },
       // 展示编辑用户的对话框
       async showEditDialog(row) {
         this.editForm = row;
         this.editDialogVisible = true;
-      },
-      //修改用户成功后关闭对话框
-      handleEditSuccess(editSuccess) {
-        // 关闭对话框
-        this.editDialogVisible = false;
-        // 刷新数据列表
-        this.getUserList()
       },
       // 根据Id删除对应的用户信息
       async removeUserById(id) {
@@ -455,7 +441,10 @@
       searchFilter: function (val, oldVal) {
         this.userList = this.userList.filter(item => (~item.username.indexOf(val)));
         if (val === '') this.getUserList();
-      }
+      },
+      addDialogVisible(newV,oldV){
+        console.log('父组件中addDialogVisible改变',newV,oldV);
+      },
     }
   }
 </script>

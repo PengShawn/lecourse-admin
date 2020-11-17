@@ -38,11 +38,12 @@ export function updateCourse(id, updateForm) {
   })
 }
 
-export function auditCourse(courseId, auditForm) {
+export function inspectCourse(courseId,pass,auditForm) {
   return request({
     url: `/course/${courseId}/audit`,
     method: 'put',
-    data: auditForm
+    data: auditForm,
+    params: {pass: pass}
   })
 }
 

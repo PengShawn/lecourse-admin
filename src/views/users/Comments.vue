@@ -57,7 +57,7 @@
       <!-- 搜索与批量删除区域 -->
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-input placeholder="评价内容模糊搜索" v-model="searchFilter" clearable>
+          <el-input placeholder="评论内容模糊搜索" v-model="searchFilter" clearable>
             <el-button slot="append" icon="el-icon-search" disabled></el-button>
           </el-input>
         </el-col>
@@ -79,7 +79,8 @@
         <!--  二级评论内容区域      -->
         <el-table-column type="expand">
           <template slot-scope="scope">
-            <el-table :data="subCommentList" border stripe @selection-change="handleSubSelectionChange" ref="subSelectedList">
+            <el-table :data="subCommentList" border stripe @selection-change="handleSubSelectionChange"
+                      ref="subSelectedList">
               <!-- 选择多行 -->
               <el-table-column
                       type="selection"
@@ -89,7 +90,8 @@
               <el-table-column type="index"></el-table-column>
               <el-table-column sortable label="评价内容" prop="subComment.text"></el-table-column>
               <el-table-column sortable label="评价用户" prop="master.username"></el-table-column>
-              <el-table-column sortable label="评价时间" prop="subComment.createTime" :formatter="dateFormat"></el-table-column>
+              <el-table-column sortable label="评价时间" prop="subComment.createTime"
+                               :formatter="dateFormat"></el-table-column>
               <el-table-column label="通过状态">
                 <template slot-scope="scope">
                   <el-switch disabled v-model="scope.row.subComment.passed">
@@ -122,10 +124,10 @@
 
         <!-- 一级评论展示内容区域-->
         <el-table-column type="index"></el-table-column>
-        <el-table-column sortable label="评价内容" prop="comment.text"></el-table-column>
+        <el-table-column sortable label="评论内容" prop="comment.text"></el-table-column>
         <el-table-column sortable label="评价用户" prop="master.username"></el-table-column>
         <el-table-column sortable label="类别" prop="comment.type" :formatter="commentTypeFormat"></el-table-column>
-        <el-table-column sortable label="评价时间" prop="comment.createTime" :formatter="dateFormat"></el-table-column>
+        <el-table-column sortable label="评论时间" prop="comment.createTime" :formatter="dateFormat"></el-table-column>
         <el-table-column label="通过状态">
           <template slot-scope="scope">
             <el-switch disabled v-model="scope.row.comment.passed">
@@ -163,58 +165,28 @@
     </el-card>
 
     <!-- 审核一级评论的对话框 -->
-    <el-dialog title="审核评论" :visible.sync="inspectDialogVisible" width="50%" @close="inspectDialogClosed">
-      <div>
-        <p>当前的评价内容：{{commentInfo.text}}</p>
-        <el-form :model="inspectForm" ref="inspectFormRef" label-width="80px">
-          <el-form-item label="审核信息" prop="details">
-            <el-input v-model="inspectForm.details"></el-input>
-          </el-form-item>
-          <el-form-item label="审核种类" prop="type">
-            <el-select v-model="selectedType" placeholder="请选择">
-              <el-option v-for="item in inspectTypeOptions" :key="item.id" :label="item.label" :value="item.value">
-              </el-option>
-            </el-select>
-          </el-form-item>
-        </el-form>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="inspectDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="inspectInfo">确 定</el-button>
-      </span>
-    </el-dialog>
+    <inspect-comment :InspectDialogVisible.sync="inspectDialogVisible"
+                     :CommentInfo="commentInfo"
+                     @inspectSuccess="getCommentList"></inspect-comment>
 
     <!-- 审核二级评论的对话框 -->
-    <el-dialog title="审核评论回复" :visible.sync="subInspectDialogVisible" width="50%" @close="subInspectDialogClosed">
-      <div>
-        <p>当前的评价内容：{{subCommentInfo.text}}</p>
-        <el-form :model="subInspectForm" ref="subInspectFormRef" label-width="80px">
-          <el-form-item label="审核信息" prop="details">
-            <el-input v-model="subInspectForm.details"></el-input>
-          </el-form-item>
-          <el-form-item label="审核种类" prop="type">
-            <el-select v-model="subSelectedType" placeholder="请选择">
-              <el-option v-for="item in inspectTypeOptions" :key="item.id" :label="item.label" :value="item.value">
-              </el-option>
-            </el-select>
-          </el-form-item>
-        </el-form>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="subInspectDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="subInspectInfo">确 定</el-button>
-      </span>
-    </el-dialog>
+    <inspect-sub-comment :SubInspectDialogVisible.sync="subInspectDialogVisible"
+                         :SubCommentInfo="subCommentInfo"
+                         @subInspectSuccess="getSubCommentList"></inspect-sub-comment>
   </div>
 </template>
 
 <script>
-  import {fetchCommentList, deleteCommentById,inspectComment,batchDeleteComment} from "@/api/comments";
-  import {fetchSubCommentList, deleteSubCommentById,inspectSubComment,batchDeleteSubComment} from "@/api/subcomments";
+  import {fetchCommentList, deleteCommentById, batchDeleteComment} from "@/api/comments";
+  import {fetchSubCommentList, deleteSubCommentById, batchDeleteSubComment} from "@/api/subcomments";
 
   import {formatDate} from '@/utils/date';
+
+  import InspectComment from "./components/InspectComment";
+  import InspectSubComment from "./components/InspectSubComment";
   export default {
     name: "Comments",
+    components: {InspectComment,InspectSubComment},
     data() {
       return {
         // 获取评论列表的参数对象
@@ -250,40 +222,19 @@
         searchFilter: '',
         selectedId: [], //批量删除id
         subSelectedId: [],
-        //审核种类
-        inspectTypeOptions: [
-          {value: 'PASS', label: '审核通过'},
-          {value: 'VIOLATE', label: '含暴力信息'},
-          {value: 'ELSE', label: '其他原因(不通过)'}
-        ],
+        // 控制审核评论对话框的显示与隐藏
+        inspectDialogVisible: false,
+        subInspectDialogVisible: false,
         //是否通过审核
         passedOptions: [
           {value: true, label: '已通过'},
           {value: false, label: '未通过'}
         ],
         //是否已经审核
-       checkedOptions: [
+        checkedOptions: [
           {value: true, label: '已审核'},
           {value: false, label: '未审核'}
-        ],
-        // 控制审核评论对话框的显示与隐藏
-        inspectDialogVisible: false,
-        subInspectDialogVisible: false,
-        selectedType: '',
-        subSelectedType: '',
-        // 审核评论的表单数据
-        inspectForm: {
-          commentId: '',
-          details: '',
-          inspectorId: '',
-          type: ''
-        },
-        subInspectForm: {
-          subCommentId: '',
-          details: '',
-          inspectorId: '',
-          type: ''
-        }
+        ]
       }
     },
     created() {
@@ -370,12 +321,11 @@
           return '其他'
         }
       },
-      dateFormat(row,column) {
+      dateFormat(row, column) {
         let cm;
-        if(row.subComment !== undefined ) cm = row.subComment;
+        if (row.subComment !== undefined) cm = row.subComment;
         else cm = row.comment;
         let date = new Date(cm.createTime);
-
         return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
       },
       // 根据Id删除对应的评论信息
@@ -431,49 +381,6 @@
         this.subCommentInfo = row.subComment;
         this.subInspectDialogVisible = true
       },
-      //审核评论
-      async inspectInfo() {
-        if(!this.selectedType) {
-          return this.$message.error('请选择审核类型')
-        }
-        this.inspectForm.type = this.selectedType;
-        this.inspectForm.commentId = this.commentInfo.id;
-        this.inspectForm.inspectorId = window.sessionStorage.getItem('userId');
-        inspectComment(this.inspectForm).then(res => {
-          console.log('审核评价',res);
-          this.$message.success('审核评价成功！');
-          this.getCommentList();
-          this.inspectDialogVisible = false
-        }).catch(error => console.log(error));
-      },
-      //审核二级评论
-      async subInspectInfo() {
-        if(!this.subSelectedType) {
-          return this.$message.error('请选择审核类型')
-        }
-        this.subInspectForm.type = this.subSelectedType;
-        this.subInspectForm.subCommentId = this.subCommentInfo.id;
-        this.subInspectForm.inspectorId = window.sessionStorage.getItem('userId')
-        //const {data: res} = await this.$http.post('/comment/audit', this.subInspectForm);
-        // const {data: res} = await this.$http.put(
-        //     `/comment/sub/${this.commentId}/audit`, this.subInspectForm
-        // );
-        inspectSubComment(this.commentId, this.subInspectForm).then(res => {
-          console.log('审核二级评价',res);
-          this.$message.success('审核评价回复成功！');
-          this.getSubCommentList(this.commentId)
-          this.subInspectDialogVisible = false;
-        }).catch(error => console.log(error))
-      },
-      // 监听审核评论框的关闭事件
-      inspectDialogClosed() {
-        this.selectedType = '';
-        this.commentInfo = {}
-      },
-      subInspectDialogClosed() {
-        this.subSelectedType = '';
-        this.subCommentInfo = {}
-      },
       //批量删除
       async batchDelete() {
         if (this.selectedId.length === 0) {
@@ -495,7 +402,7 @@
           return this.$message.info('已取消删除')
         }
         batchDeleteComment(this.selectedId).then(res => {
-          console.log('批量删除评论',res);
+          console.log('批量删除评论', res);
           this.$message.success('批量删除评论成功！');
           this.getCommentList()
         }).catch(error => console.log(error))
@@ -520,16 +427,16 @@
           return this.$message.info('已取消删除')
         }
         batchDeleteSubComment(this.subSelectedId).then(res => {
-          console.log('批量删除二级评论',res);
+          console.log('批量删除二级评论', res);
           this.$message.success('批量删除评论回复成功！');
           this.getSubCommentList(this.commentId)
         }).catch(error => console.log(error))
       },
       //展开后获取回复的二级评论
-      expandChange(row,expandedRows) {
-        if(expandedRows.length === 0) return;
-        const lastExpandId = expandedRows[expandedRows.length-1].id;
-        if(expandedRows.length > 1){
+      expandChange(row, expandedRows) {
+        if (expandedRows.length === 0) return;
+        const lastExpandId = expandedRows[expandedRows.length - 1].id;
+        if (expandedRows.length > 1) {
           expandedRows.map((item) => {
             if (lastExpandId !== item.id) {
               this.$refs.selectedList.toggleRowExpansion(item, false)

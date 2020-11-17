@@ -1,11 +1,17 @@
 <template>
   <div>
-    <!-- 审核一级评论的对话框 -->
-    <el-dialog title="审核评论" :visible.sync="inspectDialogVisible" width="50%" @close="inspectDialogClosed">
+    <!-- 审核课程的对话框 -->
+    <el-dialog title="审核课程" :visible.sync="inspectDialogVisible" width="50%" @close="inspectDialogClosed">
       <div>
         <el-form ref="inspectFormRef" label-width="80px">
-          <el-form-item label="评价内容" prop="text">
-            <el-input v-model="commentInfo.text" disabled></el-input>
+          <el-form-item label="课程题目" prop="text">
+            <el-input v-model="courseInfo.title" disabled></el-input>
+          </el-form-item>
+          <el-form-item label="课程描述" prop="text">
+            <el-input v-model="courseInfo.description" disabled></el-input>
+          </el-form-item>
+          <el-form-item label="作者id" prop="text">
+            <el-input v-model="courseInfo.userId" disabled></el-input>
           </el-form-item>
           <el-form-item label="是否通过" prop="pass">
             <el-radio v-model="pass" label="true">通过</el-radio>
@@ -27,18 +33,19 @@
         <el-button type="primary" @click="inspectInfo">确 定</el-button>
       </span>
     </el-dialog>
+
   </div>
 </template>
 
 <script>
-  import {inspectComment} from "@/api/comments";
+  import {inspectCourse} from "@/api/courses";
 
   export default {
-    name: "InspectComment",
-    props: ['CommentInfo', 'InspectDialogVisible'],
+    name: "InspectCourse",
+    props: ['CourseInfo', 'InspectDialogVisible'],
     data() {
       return {
-        commentInfo: {},
+        courseInfo: {},
         //审核种类
         inspectTypeOptions: [
           {value: 'VIOLATE', label: '含暴力信息'},
@@ -55,7 +62,7 @@
       }
     },
     methods: {
-      //审核评论
+      //审核课程
       inspectInfo() {
         const inspectForm = {
           type: this.selectedType,
@@ -63,9 +70,9 @@
           inspectorId: window.sessionStorage.getItem('userId')
         };
         if (this.pass === 'true') inspectForm.type = 'PASS';
-        inspectComment(this.commentInfo.id, this.pass, inspectForm).then(res => {
-          console.log('审核评价', res);
-          this.$message.success('审核评价成功！');
+        inspectCourse(this.courseInfo.id, this.pass, inspectForm).then(res => {
+          console.log('审核课程', res);
+          this.$message.success('审核课程成功！');
           this.$emit('inspectSuccess', true);
           //将父组件editDialogVisible设为false
           this.$emit('update:InspectDialogVisible', false);
@@ -76,7 +83,7 @@
         this.pass = 'true';
         this.details = '';
         this.selectedType = 'ELSE';
-        this.commentInfo = {};
+        this.courseInfo = {};
         //将子组件addDialogVisible传回给父组件
         this.$emit('update:InspectDialogVisible',this.inspectDialogVisible);
       },
@@ -88,9 +95,9 @@
           this.inspectDialogVisible = this.InspectDialogVisible;
         }
       },
-      'CommentInfo': {
+      'CourseInfo': {
         handler(val) {
-          this.commentInfo = this.CommentInfo;
+          this.courseInfo = this.CourseInfo;
         }
       },
     }
