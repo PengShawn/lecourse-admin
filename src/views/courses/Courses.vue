@@ -129,7 +129,7 @@
             </el-tooltip>
             <!--查看视频按钮    -->
             <el-tooltip class="item" effect="dark" content="查看章节" placement="top" :enterable="false">
-              <el-button type="danger" icon="el-icon-video-camera" size="mini" @click="btnToChapter"></el-button>
+              <el-button type="danger" icon="el-icon-video-camera" size="mini" @click="btnToChapter(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -157,6 +157,7 @@
                     @inspectSuccess="getCourseList"></inspect-course>
   </div>
 </template>
+
 
 <script>
   //组件
@@ -263,11 +264,17 @@
       }
       ,
       //点击查看章节列表按钮
-      btnToChapter() {
+      btnToChapter(row) {
+        console.log('跳转到章节',row.course.id);
         //此次还需要传参课程id，先做个demo
-        this.$router.push('chapters')
+        this.$router.push({
+          path: 'chapters',
+          params: {
+            courseId: row.course.id
+          }
+        })
       },
-      // 展示编辑章节视频的对话框
+      // 展示编辑课程的对话框
       async showEditDialog(row) {
         this.editForm = row.course;
         this.editDialogVisible = true
