@@ -3,7 +3,7 @@ import { Message, MessageBox } from 'element-ui'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: 'http://106.15.192.234:8080', // api的base_url
+  baseURL: 'http://106.15.192.234:80', // api的base_url
   timeout: 15000 // 请求超时时间
 });
 
@@ -59,6 +59,6 @@ service.interceptors.response.use(
       })
       return Promise.reject(error)
     }
-)
+);
 
 export default service

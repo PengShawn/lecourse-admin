@@ -112,7 +112,7 @@
           </template>
         </el-table-column>
         <el-table-column label="价格" prop="course.price"></el-table-column>
-        <el-table-column label="通过状态" prop="checked">
+        <el-table-column label="通过状态" prop="passed">
           <template slot-scope="scope">
             <el-switch v-model="scope.row.course.passed" disabled>
             </el-switch>
@@ -266,10 +266,9 @@
       //点击查看章节列表按钮
       btnToChapter(row) {
         console.log('跳转到章节',row.course.id);
-        //此次还需要传参课程id，先做个demo
         this.$router.push({
           path: 'chapters',
-          params: {
+          query: {
             courseId: row.course.id
           }
         })
@@ -316,7 +315,18 @@
     },
     watch: {
       searchFilter: function (val, oldVal) {
-        this.courseList = this.courseList.filter(item => (~item.title.indexOf(val)));
+        this.courseList = this.courseList.filter(item => {
+          let boolFind = false;
+          if(item.course.title !== null && item.course.title.indexOf(val)!==-1){
+            boolFind = true;
+          }
+          else if(item.course.description !== null && item.course.description.indexOf(val)!==-1){
+            boolFind = true;
+          }
+          else if(item.master.username !== null && item.master.username.indexOf(val)!==-1)
+            boolFind = true;
+          return boolFind
+        });
         if (val === '') this.getCourseList();
       }
     }

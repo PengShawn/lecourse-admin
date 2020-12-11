@@ -125,7 +125,7 @@
         <!-- 一级评论展示内容区域-->
         <el-table-column type="index"></el-table-column>
         <el-table-column sortable label="评论内容" prop="comment.text"></el-table-column>
-        <el-table-column sortable label="评价用户" prop="master.username"></el-table-column>
+        <el-table-column sortable label="评价用户" prop="master.nickname"></el-table-column>
         <el-table-column sortable label="类别" prop="comment.type" :formatter="commentTypeFormat"></el-table-column>
         <el-table-column sortable label="评论时间" prop="comment.createTime" :formatter="dateFormat"></el-table-column>
         <el-table-column label="通过状态">
@@ -460,7 +460,15 @@
     },
     watch: {
       searchFilter: function (val, oldVal) {
-        this.commentList = this.commentList.filter(item => (~item.text.indexOf(val)));
+        this.commentList = this.commentList.filter(item => {
+          let boolFind = false;
+          if(item.comment.text !== null && item.comment.text.indexOf(val)!==-1){
+            boolFind = true;
+          }
+          if(item.master.nickname !== null && item.master.nickname.indexOf(val)!==-1)
+            boolFind = true;
+          return boolFind;
+        });
         if (val === '') this.getCommentList();
       }
     }

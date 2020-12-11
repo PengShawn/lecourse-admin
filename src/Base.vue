@@ -1,5 +1,5 @@
 <script>
-  const BASE_URL = 'http://47.102.202.209:8080'; // 设置全局 URL
+  const BASE_URL = 'http://106.15.192.234:80'; // 设置全局 URL
   export default{
     BASE_URL
   }

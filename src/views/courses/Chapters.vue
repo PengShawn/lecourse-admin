@@ -23,22 +23,22 @@
       </el-row>
 
       <!-- 课程列表区域     -->
-      <el-table :data="chapterlist" border stripe>
+      <el-table :data="chapterList" border stripe ref="selectedList">
         <el-table-column type="index" label="#"></el-table-column>
         <el-table-column label="章节id" prop="id"></el-table-column>
-        <el-table-column label="课程来源" prop="course_id"></el-table-column>
-        <el-table-column label="视频" >
+        <el-table-column label="章节描述" prop="description"></el-table-column>
+        <el-table-column label="章节封面" >
           <template slot-scope="scope">
             <el-image
                     style="width: 100px; height: 100px"
-                    :src="scope.row.video_url"
+                    :src="scope.row.photoUrl"
                     fit="fill"></el-image>
           </template>
         </el-table-column>
         <el-table-column label="简介" prop="description"></el-table-column>
-        <el-table-column label="审核状态" prop="checked">
+        <el-table-column label="通过状态" prop="passed">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.checked">
+            <el-switch v-model="scope.row.passed">
             </el-switch>
           </template>
         </el-table-column>
@@ -60,9 +60,9 @@
       <el-pagination
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-              :current-page="queryInfo.pagenum"
+              :current-page="queryInfo.currentPage"
               :page-sizes="[2, 5, 10, 50]"
-              :page-size="queryInfo.pagesize"
+              :page-size="queryInfo.pageSize"
               layout="total, sizes, prev, pager, next, jumper"
               :total="total">
       </el-pagination>
@@ -74,79 +74,84 @@
 
     </el-card>
 
-    <!-- 添加视频的对话框 -->
-    <el-dialog title="添加章节" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">
-      <!-- 内容主体区域 -->
-      <el-upload
-              class="upload-demo" style="margin-bottom: 20px"
-              drag
-              action="https://jsonplaceholder.typicode.com/posts/"
-              accept=".txt"
-              multiple>
-        <i class="el-icon-upload"></i>
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-        <div class="el-upload__tip" slot="tip">只能上传视频文件，且不超过500mb</div>
-      </el-upload>
-      <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px">
-        <el-form-item label="章节名称" prop="username">
-          <el-input v-model="addForm.username"></el-input>
-        </el-form-item>
-        <el-form-item label="章节介绍" prop="description">
-          <el-input v-model="addForm.description"></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="addForm.email"></el-input>
-        </el-form-item>
-        <el-form-item label="手机" prop="mobile">
-          <el-input v-model="addForm.mobile"></el-input>
-        </el-form-item>
-      </el-form>
-      <!-- 底部区域 -->
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="addDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="">确 定</el-button>
-      </span>
-    </el-dialog>
+<!--    &lt;!&ndash; 添加视频的对话框 &ndash;&gt;-->
+<!--    <el-dialog title="添加章节" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">-->
+<!--      &lt;!&ndash; 内容主体区域 &ndash;&gt;-->
+<!--      <el-upload-->
+<!--              class="upload-demo" style="margin-bottom: 20px"-->
+<!--              drag-->
+<!--              action="https://jsonplaceholder.typicode.com/posts/"-->
+<!--              accept=".txt"-->
+<!--              multiple>-->
+<!--        <i class="el-icon-upload"></i>-->
+<!--        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>-->
+<!--        <div class="el-upload__tip" slot="tip">只能上传视频文件，且不超过500mb</div>-->
+<!--      </el-upload>-->
+<!--      <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px">-->
+<!--        <el-form-item label="章节名称" prop="username">-->
+<!--          <el-input v-model="addForm.username"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="章节介绍" prop="description">-->
+<!--          <el-input v-model="addForm.description"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="邮箱" prop="email">-->
+<!--          <el-input v-model="addForm.email"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="手机" prop="mobile">-->
+<!--          <el-input v-model="addForm.mobile"></el-input>-->
+<!--        </el-form-item>-->
+<!--      </el-form>-->
+<!--      &lt;!&ndash; 底部区域 &ndash;&gt;-->
+<!--      <span slot="footer" class="dialog-footer">-->
+<!--        <el-button @click="addDialogVisible = false">取 消</el-button>-->
+<!--        <el-button type="primary" @click="">确 定</el-button>-->
+<!--      </span>-->
+<!--    </el-dialog>-->
 
-    <!-- 修改课程的对话框 -->
-    <el-dialog title="修改视频章节" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
-      <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
-        <el-form-item label="视频id">
-          <el-input v-model="editForm.id" disabled></el-input>
-        </el-form-item>
-        <el-form-item label="章节描述" prop="email">
-          <el-input v-model="editForm.description"></el-input>
-        </el-form-item>
-        <el-form-item label="视频时长" prop="mobile">
-          <el-input v-model="editForm.video_duration"></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="">确 定</el-button>
-      </span>
-    </el-dialog>
+<!--    &lt;!&ndash; 修改课程的对话框 &ndash;&gt;-->
+<!--    <el-dialog title="修改视频章节" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">-->
+<!--      <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">-->
+<!--        <el-form-item label="视频id">-->
+<!--          <el-input v-model="editForm.id" disabled></el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="章节描述" prop="email">-->
+<!--          <el-input v-model="editForm.description"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="视频时长" prop="mobile">-->
+<!--          <el-input v-model="editForm.video_duration"></el-input>-->
+<!--        </el-form-item>-->
+<!--      </el-form>-->
+<!--      <span slot="footer" class="dialog-footer">-->
+<!--        <el-button @click="editDialogVisible = false">取 消</el-button>-->
+<!--        <el-button type="primary" @click="">确 定</el-button>-->
+<!--      </span>-->
+<!--    </el-dialog>-->
 
-    <!-- 查看视频的对话框 -->
-    <el-dialog title="查看视频" :visible.sync="readDialogVisible" width="50%">
-      <video :src="videoUrl" controls autoplay class="video"  :ref="dialogVideo"
-             width="100%"></video>
-      <el-form :model="editForm" ref="readFormRef" label-width="70px">
-        <el-form-item label="视频id">
-          <el-input v-model="editForm.id" disabled></el-input>
-        </el-form-item>
+<!--    &lt;!&ndash; 查看视频的对话框 &ndash;&gt;-->
+<!--    <el-dialog title="查看视频" :visible.sync="readDialogVisible" width="50%">-->
+<!--      <video :src="videoUrl" controls autoplay class="video"  :ref=""-->
+<!--             width="100%"></video>-->
+<!--      <el-form :model="editForm" ref="readFormRef" label-width="70px">-->
+<!--        <el-form-item label="视频id">-->
+<!--          <el-input v-model="editForm.id" disabled></el-input>-->
+<!--        </el-form-item>-->
 
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="readDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="readDialogVisible = false">确 定</el-button>
-      </span>
-    </el-dialog>
+<!--      </el-form>-->
+<!--      <span slot="footer" class="dialog-footer">-->
+<!--        <el-button @click="readDialogVisible = false">取 消</el-button>-->
+<!--        <el-button type="primary" @click="readDialogVisible = false">确 定</el-button>-->
+<!--      </span>-->
+<!--    </el-dialog>-->
 
   </div>
 </template>
 
 <script>
+
+  //接口
+  import {fetchChapterList} from "@/api/courses";
+
+  let courseId = 0;
   export default {
     name: "Chapter",
     data() {
@@ -155,14 +160,12 @@
         videoUrl: "https://www.w3school.com.cn//i/movie.ogg",
         // 获取课程列表的参数对象
         queryInfo: {
-          query: '',
-          // 当前的页数
-          pagenum: 1,
-          // 当前每页显示多少条数据
-          pagesize: 10
+          currentPage: 1,
+          orderBy: [],
+          pageSize: 5,
         },
         //章节列表
-        chapterlist: [
+        chapterList: [
           {id: '00213', video_url: '', video_duration: '3分', course_id: '111', description: '第1章', checked: true, create_time: '2020-10-1'},
           {id: '00214', video_url: '', video_duration: '3分', course_id: '111', description: '第2章', checked: true, create_time: '2020-10-1'},
           {id: '00215', video_url: '', video_duration: '3分', course_id: '111', description: '第3章', checked: true, create_time: '2020-10-1'},
@@ -193,6 +196,14 @@
       }
     },
     methods: {
+      //获取章节列表
+      getChapterList(courseId) {
+        fetchChapterList(this.queryInfo,courseId).then(res => {
+          console.log('获取章节列表',res);
+          this.chapterList = res.payload.chapterList;
+          this.total = res.payload.listParam.totalNum;
+        }).catch(err => console.log(err))
+      },
       // 监听 pagesize 改变的事件
       handleSizeChange(newSize) {
         // console.log(newSize)
@@ -253,6 +264,11 @@
         this.$message.success('删除用户成功！')
         this.getUserList()
       }
+    },
+    created() {
+      courseId = this.$route.query.courseId;
+      console.log('传递过来的参数',courseId);
+      this.getChapterList(courseId);
     }
   }
 </script>

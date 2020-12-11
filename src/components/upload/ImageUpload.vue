@@ -3,7 +3,7 @@
     <el-upload
             class="upload-demo"
             drag
-            action="http://106.15.192.234:8080/upload/image"
+            action="http://106.15.192.234:80/upload/image"
             :on-change="onChange"
             :on-success="onSuccess"
             :on-remove="onRemove"

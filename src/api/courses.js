@@ -60,3 +60,11 @@ export function getCourseTag(id) {
     method: 'get'
   })
 }
+
+export function fetchChapterList(queryInfo,courseId) {
+  return request({
+    url: `/course/${courseId}/list`,
+    method: 'post',
+    data: queryInfo
+  })
+}

@@ -277,7 +277,7 @@
       getUserList() {
         fetchUserList(this.queryInfo).then(res => {
           console.log('获取用户列表', res);
-          this.userList = res.payload.postList;
+          this.userList = res.payload.userList;
           this.total = res.payload.listParam.totalNum;
         }).catch(error => console.log(error))
       },
@@ -439,7 +439,15 @@
     },
     watch: {
       searchFilter: function (val, oldVal) {
-        this.userList = this.userList.filter(item => (~item.username.indexOf(val)));
+        this.userList = this.userList.filter(item => {
+          let boolFind = false;
+          if(item.username !== null && item.username.indexOf(val)!==-1){
+            boolFind = true;
+          }
+          else if(item.nickname !== null && item.nickname.indexOf(val)!==-1)
+            boolFind = true;
+          return boolFind;
+        });
         if (val === '') this.getUserList();
       },
       addDialogVisible(newV,oldV){
