@@ -148,7 +148,7 @@
     </el-card>
 
     <!-- 添加课程的对话框 -->
-    <add-course :AddDialogVisible.sync="addDialogVisible" @addSuccess="getCourseList"></add-course>
+    <add-course :AddDialogVisible.sync="addDialogVisible" @addSuccess="addCourseSuccess"></add-course>
     <!-- 修改课程的对话框 -->
     <edit-course :EditDialogVisible.sync="editDialogVisible" :EditForm="editForm" @editSuccess="getCourseList"></edit-course>
     <!-- 审核课程的对话框 -->
@@ -244,8 +244,8 @@
       getCourseList() {
         fetchCourseList(this.queryInfo).then(res => {
           console.log('获取课程列表', res);
-          this.courseList = res.payload.courseList;
-          this.total = res.payload.listParam.totalNum;
+          this.courseList = res.payload.list;
+          this.total = res.payload.param.totalNum;
         }).catch(error => console.log(error))
       },
       // 监听 pagesize 改变的事件
@@ -272,6 +272,12 @@
             courseId: row.course.id
           }
         })
+      },
+      addCourseSuccess(data) {
+        console.log('添加课程成功的信息',data);
+        this.editForm = data;
+        this.editDialogVisible = true;
+
       },
       // 展示编辑课程的对话框
       async showEditDialog(row) {

@@ -277,8 +277,8 @@
       getUserList() {
         fetchUserList(this.queryInfo).then(res => {
           console.log('获取用户列表', res);
-          this.userList = res.payload.userList;
-          this.total = res.payload.listParam.totalNum;
+          this.userList = res.payload.list;
+          this.total = res.payload.param.totalNum;
         }).catch(error => console.log(error))
       },
       //角色的后台数据转化显示

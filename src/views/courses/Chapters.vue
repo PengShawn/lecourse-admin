@@ -13,7 +13,7 @@
       <!-- 搜索与添加区域      -->
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-input placeholder="请输入内容" clearable>
+          <el-input placeholder="请输入内容" v-model="searchFilter" clearable>
             <el-button slot="append" icon="el-icon-search"></el-button>
           </el-input>
         </el-col>
@@ -67,6 +67,8 @@
               :total="total">
       </el-pagination>
     </el-card>
+
+    <add-chapter :AddDialogVisible.sync="addDialogVisible" @addSuccess="getChapterList"></add-chapter>
 
     <!-- 评论卡片视图    -->
     <el-card style="margin-top: 15px">
@@ -147,17 +149,18 @@
 </template>
 
 <script>
-
+  //组件
+  import AddChapter from "./components/AddChapter";
   //接口
+  import {addChapter, deleteChapter, updateChapter, inspectChapter} from "@/api/chapters";
   import {fetchChapterList} from "@/api/courses";
 
   let courseId = 0;
   export default {
     name: "Chapter",
+    components: {AddChapter},
     data() {
       return {
-        //测试视频url
-        videoUrl: "https://www.w3school.com.cn//i/movie.ogg",
         // 获取课程列表的参数对象
         queryInfo: {
           currentPage: 1,
@@ -165,16 +168,10 @@
           pageSize: 5,
         },
         //章节列表
-        chapterList: [
-          {id: '00213', video_url: '', video_duration: '3分', course_id: '111', description: '第1章', checked: true, create_time: '2020-10-1'},
-          {id: '00214', video_url: '', video_duration: '3分', course_id: '111', description: '第2章', checked: true, create_time: '2020-10-1'},
-          {id: '00215', video_url: '', video_duration: '3分', course_id: '111', description: '第3章', checked: true, create_time: '2020-10-1'},
-          {id: '00216', video_url: '', video_duration: '3分', course_id: '111', description: '第4章', checked: true, create_time: '2020-10-1'},
-          {id: '00217', video_url: '', video_duration: '3分', course_id: '111', description: '第5章', checked: true, create_time: '2020-10-1'},
-          {id: '00218', video_url: '', video_duration: '3分', course_id: '111', description: '第6章', checked: true, create_time: '2020-10-1'}
-        ],
+        chapterList: [],
         //章节总数
         total: 10,
+        searchFilter: '',  //模糊搜索
         // 控制添加章节视频对话框的显示与隐藏
         addDialogVisible: false,
         // 添加章节视频的表单数据
@@ -197,25 +194,25 @@
     },
     methods: {
       //获取章节列表
-      getChapterList(courseId) {
+      getChapterList() {
         fetchChapterList(this.queryInfo,courseId).then(res => {
           console.log('获取章节列表',res);
-          this.chapterList = res.payload.chapterList;
-          this.total = res.payload.listParam.totalNum;
+          this.chapterList = res.payload.list;
+          this.total = res.payload.param.totalNum;
         }).catch(err => console.log(err))
       },
       // 监听 pagesize 改变的事件
       handleSizeChange(newSize) {
         // console.log(newSize)
-        this.queryInfo.pagesize = newSize
+        this.queryInfo.pageSize = newSize;
         //然后需要重新获取课程章节列表
-
+        this.getChapterList()
       },
       // 监听 页码值 改变的事件
       handleCurrentChange(newPage) {
-        this.queryInfo.pagenum = newPage
+        this.queryInfo.currentPage = newPage;
         //然后需要重新获取课程章节列表
-
+        this.getChapterList()
       },
       // 监听添加章节对话框的关闭事件
       addDialogClosed() {
@@ -223,7 +220,6 @@
       },
       // 展示编辑章节视频的对话框
       async showEditDialog(id) {
-
         this.editForm = this.chapterlist[0]
         this.editDialogVisible = true
       },
@@ -246,7 +242,7 @@
               cancelButtonText: '取消',
               type: 'warning'
             }
-        ).catch(err => err)
+        ).catch(err => err);
 
         // 如果用户确认删除，则返回值为字符串 confirm
         // 如果用户取消了删除，则返回值为字符串 cancel
@@ -267,8 +263,18 @@
     },
     created() {
       courseId = this.$route.query.courseId;
-      console.log('传递过来的参数',courseId);
-      this.getChapterList(courseId);
+      this.getChapterList();
+    },
+    watch: {
+      searchFilter: function (val, oldVal) {
+        this.chapterList = this.chapterList.filter(item => {
+          let boolFind = false;
+          if(item.description !== null && item.description.indexOf(val) !== -1)
+            boolFind = true;
+          return boolFind
+        });
+        if(val === '') this.getChapterList(courseId);
+      }
     }
   }
 </script>
@@ -278,5 +284,4 @@
     width: 300px;
     height: 280px;
   }
-
 </style>

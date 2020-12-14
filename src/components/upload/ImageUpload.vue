@@ -3,7 +3,7 @@
     <el-upload
             class="upload-demo"
             drag
-            action="http://106.15.192.234:80/upload/image"
+            :action="uploadUrl"
             :on-change="onChange"
             :on-success="onSuccess"
             :on-remove="onRemove"
@@ -20,18 +20,23 @@
 
 <script>
   import {deleteImage} from "@/api/upload";
+  import BASE_URL from "@/utils/config";
   export default {
     name: "ImageUpload",
+    props: ['id','type'],
     data() {
       return {
         param: '',
         fileList: [],
         src: '',
         phoneUrl: '',
+        uploadUrl: ''
       }
     },
-    computed: {
-
+    created(){
+       console.log('上传图片组件被创建')
+       this.uploadUrl = BASE_URL + '/' + this.type + '/' + this.id + '/photo';
+       console.log('上传图片组件上传是的url',this.uploadUrl)
     },
     methods:{
       onChange(file,filesList){
@@ -74,6 +79,15 @@
             this.phoneUrl = '';
             this.$message.success('删除图片成功');
           }).catch(error => console.log(error))
+        }
+      }
+    },
+    watch: {
+      'id': {
+        handler(val) {
+          console.log('父组件的pid变了',val);
+          this.uploadUrl = BASE_URL + this.type + '/' + this.id + '/photo';
+          console.log('上传图片的url',this.uploadUrl)
         }
       }
     }

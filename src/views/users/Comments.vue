@@ -138,7 +138,7 @@
           <template slot-scope="scope">
             <!-- 删除按钮 -->
             <el-button type="danger" icon="el-icon-delete" size="mini"
-                       @click="removeCommentById(scope.row.id)"></el-button>
+                       @click="removeCommentById(scope.row.comment.id)"></el-button>
             <!-- 批量删除回复按钮 -->
             <el-tooltip effect="dark" content="批量删除回复" placement="top" :enterable="false">
               <el-button type="primary" icon="el-icon-delete-solid" size="mini"
@@ -244,16 +244,17 @@
       async getCommentList() {
         fetchCommentList(this.queryInfo).then(res => {
           console.log('获取评论列表', res);
-          this.commentList = res.payload.commentList;
-          this.total = res.payload.listParam.totalNum;
+          this.commentList = res.payload.list;
+          this.total = res.payload.param.totalNum;
         });
       },
       async getSubCommentList(commentId) {
         this.subQueryInfo.subCommentFilter.commentId = commentId;
+        console.log('请求二级评论列表前打印id信息',commentId);
         fetchSubCommentList(this.subQueryInfo).then(res => {
           console.log('获取二级评论列表', res);
-          this.subCommentList = res.payload.subCommentList;
-          this.subTotal = res.payload.listParam.totalNum;
+          this.subCommentList = res.payload.list;
+          this.subTotal = res.payload.param.totalNum;
           this.subQueryInfo.subCommentFilter.commentId = '';
         });
       },
@@ -299,12 +300,12 @@
       //处理选择变化
       handleSelectionChange(val) {
         this.selectedId = val.map((item) => {
-          return item.id
+          return item.comment.id
         });
       },
       handleSubSelectionChange(val) {
         this.subSelectedId = val.map((item) => {
-          return item.id
+          return item.comment.id
         });
       },
       //评论类别的后台数据转化显示
@@ -435,7 +436,7 @@
       //展开后获取回复的二级评论
       expandChange(row, expandedRows) {
         if (expandedRows.length === 0) return;
-        const lastExpandId = expandedRows[expandedRows.length - 1].id;
+        const lastExpandId = expandedRows[expandedRows.length - 1].comment.id;
         if (expandedRows.length > 1) {
           expandedRows.map((item) => {
             if (lastExpandId !== item.id) {

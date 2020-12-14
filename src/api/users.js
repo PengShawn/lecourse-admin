@@ -18,7 +18,7 @@ export function addUser(addForm) {
 
 export function deleteUser(id) {
   return request({
-    url: `/user/soft/${id}`,
+    url: `/user/${id}/soft`,
     method: 'delete'
   })
 }
@@ -48,7 +48,7 @@ export function updateUserRole(userId, list) {
 
 export function batchDeleteUser(ids) {
   return request({
-    url: '/user/soft/ids',
+    url: '/user/soft/multi',
     method: 'delete',
     data: ids
   })

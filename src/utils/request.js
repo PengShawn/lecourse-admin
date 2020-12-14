@@ -1,9 +1,10 @@
 import axios from 'axios'
 import { Message, MessageBox } from 'element-ui'
+import BASE_URL from "./config";
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: 'http://106.15.192.234:80', // api的base_url
+  baseURL: BASE_URL, // api的base_url
   timeout: 15000 // 请求超时时间
 });
 
@@ -47,6 +48,7 @@ service.interceptors.response.use(
         }
         return Promise.reject('error')
       } else {
+        let str = response.data;
         return response.data
       }
     },
@@ -56,7 +58,7 @@ service.interceptors.response.use(
         message: error.message,
         type: 'error',
         duration: 3 * 1000
-      })
+      });
       return Promise.reject(error)
     }
 );

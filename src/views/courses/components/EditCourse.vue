@@ -6,17 +6,17 @@
         <el-form-item label="课程id">
           <el-input v-model="editForm.id" disabled></el-input>
         </el-form-item>
-        <el-form-item label="课程题目" prop="email">
+        <el-form-item label="课程题目" prop="title">
           <el-input v-model="editForm.title"></el-input>
         </el-form-item>
-        <el-form-item label="课程描述" prop="email">
+        <el-form-item label="课程描述" prop="description">
           <el-input type="textarea" v-model="editForm.description"></el-input>
         </el-form-item>
       </el-form>
       <label>介绍视频:</label>
       <video-upload @videoInfo="uploadVideoSuccess" style="margin-left: 70px"></video-upload>
       <label>课程封面:</label>
-      <image-upload @photoUrl="uploadImageSuccess" style="margin-left: 70px"></image-upload>
+      <image-upload :id="id" :type="type" style="margin-left: 70px"></image-upload>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
@@ -68,6 +68,8 @@
             }
           ],
         },
+        id: '',
+        type: 'course'
       }
     },
     created() {
@@ -80,10 +82,6 @@
           this.hobbyList = res.payload;
         }).catch(error => console.log(error))
       },
-      //上传图片组件传来url
-      uploadImageSuccess(photoUrl) {
-        this.editForm.photoUrl = photoUrl;
-      },
       //课程上传视频组件传来url
       uploadVideoSuccess(videoInfo) {
         this.editForm.videoUrl = videoInfo.videoUrl;
@@ -92,6 +90,7 @@
       // 监听修改用户对话框的关闭事件
       editDialogClosed() {
         this.$refs.editFormRef.resetFields();
+        this.id = '';
         //将子组件addDialogVisible传回给父组件
         this.$emit('update:EditDialogVisible',this.editDialogVisible);
       },
@@ -122,6 +121,7 @@
         handler(val) {
           console.log('父组件EditForm改变', val);
           this.editForm = this.EditForm;
+          this.id = this.EditForm.id;
         }
       },
     }

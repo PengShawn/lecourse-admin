@@ -27,11 +27,6 @@
           </el-select>
         </div>
       </el-form>
-      <label>介绍视频:</label>
-      <video-upload @videoInfo="uploadVideoSuccess" style="margin-left: 70px"></video-upload>
-      <label>课程封面:</label>
-      <image-upload @photoUrl="uploadImageSuccess" style="margin-left: 70px"></image-upload>
-
       <label>课程标签:</label>
       <select-tag @selectValue="handleAddTagIdList" :tagIdList="tagIdList" style="margin-left: 70px"></select-tag>
       <!-- 底部区域 -->
@@ -45,8 +40,6 @@
 
 <script>
   //组件
-  import ImageUpload from "@/components/upload/ImageUpload";
-  import VideoUpload from "@/components/upload/VideoUpload";
   import SelectTag from "@/components/selectTag/SelectTag";
   //接口
   import {addCourse} from "@/api/courses";
@@ -54,15 +47,13 @@
   export default {
     name: "AddCourse",
     props: ['AddDialogVisible'],
-    components: {ImageUpload, VideoUpload,SelectTag},
+    components: {SelectTag},
     data() {
       return {
         addDialogVisible: false,
         course: {
           city: "13000000",
           description: "",
-          photoUrl: "",
-          position: "13000000",
           price: 0,
           province: "13000000",
           title: "",
@@ -108,34 +99,25 @@
           this.hobbyList = res.payload;
         }).catch(error => console.log(error))
       },
-      //增加课程上传图片组件传来url
-      uploadImageSuccess(photoUrl) {
-        this.course.photoUrl = photoUrl;
-      },
-      //添加课程上传视频组件传来url
-      uploadVideoSuccess(videoInfo) {
-        this.course.videoUrl = videoInfo.videoUrl;
-        this.course.videoDuration = videoInfo.videoDuration;
-      },
       //选择标签组件传来的标签list
       handleAddTagIdList(selectValue) {
         console.log('选择的标签',selectValue);
         this.tagIdList = selectValue;
       },
       //点击确定添加课程
-      handleAddCourse() {
-        console.log('爱好列表', this.hobbyIdList);
+     async handleAddCourse() {
         this.course.userId = window.sessionStorage.getItem('userId');
         const addForm = {
           course: this.course,
           tagIdList: this.tagIdList,
           hobbyIdList: this.hobbyIdList
         };
-        addCourse(addForm).then(res => {
+        await addCourse(addForm).then(res => {
           this.$message.success('添加课程成功！');
           // 隐藏添加课程的对话框
           this.addDialogVisible = false;
-          this.$emit('addSuccess', true);
+          addForm.course.id = res.payload;
+          this.$emit('addSuccess', addForm.course);
           //将父组件addDialogVisible设为false
           this.$emit('update:AddDialogVisible', false);
         }).catch(error => console.log(error))
@@ -143,7 +125,7 @@
       ,
       // 监听添加课程对话框的关闭事件
       addDialogClosed() {
-        this.$refs.addFormRef.resetFields();
+        this.course = {};
         this.hobbyIdList = [];
         this.tagIdList = [];
         this.$emit('update:AddDialogVisible',this.addDialogVisible);
