@@ -30,6 +30,7 @@
 
   import {updateChapter} from "@/api/chapters";
 
+  let courseId = 0;
   export default {
     name: "EditChapter",
     props: ['pEditDialogVisible', 'pEditForm'],
@@ -65,6 +66,8 @@
       editChapterInfo() {
         this.$refs.editFormRef.validate(async valid => {
           if (!valid) return;
+          delete this.editForm.photoUrl;
+          delete this.editForm.videoUrl;
           updateChapter(this.editForm.id, this.editForm).then(res => {
             this.$message.success('更新章节信息成功');
             this.editDialogVisible = false;
@@ -75,17 +78,18 @@
         })
       },
     },
+    created() {
+      courseId = this.$route.query.courseId;
+    },
     watch: {
       'pEditDialogVisible': {
         handler(val) {
-          console.log('章节父组件EditDialogVisible改变了', val);
           this.editDialogVisible = this.pEditDialogVisible;
         },
         immediate: true
       },
       'pEditForm': {
         handler(val) {
-          console.log('章节父组件EditForm改变', val);
           this.editForm = this.pEditForm;
           this.id = this.pEditForm.id;
         }

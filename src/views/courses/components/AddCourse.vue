@@ -58,9 +58,7 @@
           province: "13000000",
           title: "",
           type: "COURSE",
-          userId: null,
-          videoDuration: 0,
-          videoUrl: ""
+          userId: null
         },
         addFormRules: {
           title: [

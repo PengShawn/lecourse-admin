@@ -21,7 +21,7 @@
   //接口
   import {addChapter} from "@/api/chapters";
 
-  let courseId = '';
+  let courseId = 0;
   export default {
     name: "AddChapter",
     props: ['pAddDialogVisible'],
@@ -49,7 +49,7 @@
           this.$message.success('添加课程成功！');
           // 隐藏添加课程的对话框
           this.addDialogVisible = false;
-          this.chapter = res.payload;
+          this.chapter.id = res.payload;
           this.$emit('addSuccess', this.chapter);
           //将父组件addDialogVisible设为false
           this.$emit('update:pAddDialogVisible', false);
@@ -63,7 +63,6 @@
     },
     created() {
       courseId = this.$route.query.courseId;
-      console.log('增加课程章节组件创建',this.$route.query.courseId)
     },
     watch: {
       'pAddDialogVisible': {

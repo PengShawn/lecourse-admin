@@ -9,17 +9,16 @@
             :on-remove="onRemove"
             :before-upload="beforeUpload"
             list-type="picture"
-            accept=".jpg, .png, .jpeg, .JPG, .JPEG"
+            accept=".jpg, .jpeg, .JPG, .JPEG"
             :limit=1>
       <i class="el-icon-upload"></i>
       <div class="el-upload__text">将图片拖到此处，或<em>点击上传</em></div>
-      <div class="el-upload__tip" slot="tip" style="margin-bottom: 10px;">只能上传jpg/jpeg/png文件，且不超过10mb</div>
+      <div class="el-upload__tip" slot="tip" style="margin-bottom: 10px;">只能上传jpg/jpeg文件，且不超过10mb</div>
     </el-upload>
   </div>
 </template>
 
 <script>
-  import {deleteImage} from "@/api/upload";
   import BASE_URL from "@/utils/config";
   export default {
     name: "ImageUpload",
@@ -34,7 +33,7 @@
       }
     },
     created(){
-       console.log('上传图片组件被创建')
+       console.log('上传图片组件被创建',this.id);
        this.uploadUrl = BASE_URL + '/' + this.type + '/' + this.id + '/photo';
        console.log('上传图片组件上传是的url',this.uploadUrl)
     },
@@ -67,27 +66,26 @@
       },
       onSuccess(res, file, fileList) {
         console.log('上传图片返回',res);
-        this.phoneUrl = res.payload;
-        this.$emit('photoUrl', res.payload);
-        this.$message.success('上传图片成功');
+        if (res.result === 'success') {
+          this.phoneUrl = res.payload;
+          this.$message.success('上传图片成功');
+        }else{
+          this.$message.error('上传图片失败');
+        }
+        this.fileList.splice(0, 1);
       },
       onRemove() {
-        if(this.phoneUrl !== ''){
-          deleteImage(this.phoneUrl).then(res => {
-            console.log('删除图片返回',res);
-            this.$emit('photoUrl', null);
-            this.phoneUrl = '';
-            this.$message.success('删除图片成功');
-          }).catch(error => console.log(error))
-        }
+
       }
     },
     watch: {
       'id': {
         handler(val) {
           console.log('父组件的pid变了',val);
-          this.uploadUrl = BASE_URL + this.type + '/' + this.id + '/photo';
-          console.log('上传图片的url',this.uploadUrl)
+          if(val!=='') {
+            this.uploadUrl = BASE_URL + '/' + this.type + '/' + this.id + '/photo';
+            console.log('上传图片的url改变', this.uploadUrl)
+          }
         }
       }
     }

@@ -10,6 +10,7 @@
 
     <!-- 卡片视图    -->
     <el-card>
+      <h1>课程章节的管理</h1>
       <!-- 搜索与添加区域      -->
       <el-row :gutter="20">
         <el-col :span="8">
@@ -82,11 +83,10 @@
     <!-- 修改课程的对话框 -->
     <edit-chapter :pEditDialogVisible.sync="editDialogVisible" :pEditForm="editForm"
                  @editSuccess="getChapterList"></edit-chapter>
-    <!-- 评论卡片视图    -->
-    <el-card style="margin-top: 15px">
-      <h1>评论</h1>
-    </el-card>
-
+    <!-- 审核课程的对话框 -->
+    <inspect-chapter :pInspectDialogVisible.sync="inspectDialogVisible"
+                    :pChapterInfo="chapterInfo"
+                    @inspectSuccess="getChapterList"></inspect-chapter>
   </div>
 </template>
 
@@ -94,6 +94,7 @@
   //组件
   import AddChapter from "./components/AddChapter";
   import EditChapter from "./components/EditChapter";
+  import InspectChapter from "./components/InspectChapter";
   //接口
   import {deleteChapter} from "@/api/chapters";
   import {fetchChapterList} from "@/api/courses";
@@ -101,7 +102,7 @@
   let courseId = 0;
   export default {
     name: "Chapter",
-    components: {AddChapter,EditChapter},
+    components: {AddChapter,EditChapter,InspectChapter},
     data() {
       return {
         // 获取课程列表的参数对象
@@ -159,7 +160,7 @@
         this.editDialogVisible = true
       },
       showInspectDialog(row) {
-        this.editForm = row
+        this.chapterInfo = row;
         this.inspectDialogVisible = true
       },
       // 根据Id删除对应的视频章节信息
@@ -173,7 +174,7 @@
               cancelButtonText: '取消',
               type: 'warning'
             }
-        ).catch(err => err)
+        ).catch(err => err);
         if (confirmResult !== 'confirm') {
           return this.$message.info('已取消删除')
         }
@@ -202,8 +203,5 @@
 </script>
 
 <style scoped>
-  .video {
-    width: 300px;
-    height: 280px;
-  }
+
 </style>

@@ -89,7 +89,7 @@
                 <span>{{ props.row.course.userId}}</span>
               </el-form-item>
               <el-form-item label="介绍视频:">
-                <video :src="props.row.videoUrl" controls class="video"
+                <video :src="props.row.course.videoUrl" controls class="video"
                        width="100%"></video>
               </el-form-item>
               <el-form-item label="课程描述:">
@@ -288,7 +288,7 @@
               cancelButtonText: '取消',
               type: 'warning'
             }
-        ).catch(err => err)
+        ).catch(err => err);
         if (confirmResult !== 'confirm') {
           return this.$message.info('已取消删除')
         }

@@ -92,6 +92,8 @@
       editCourseInfo() {
         this.$refs.editFormRef.validate(async valid => {
           if (!valid) return;
+          delete this.editForm.photoUrl;
+          delete this.editForm.videoUrl;
           console.log('修改课程表', this.editForm);
           updateCourse(this.editForm.id, this.editForm).then(res => {
             this.$message.success('更新课程信息成功');
@@ -106,14 +108,12 @@
     watch: {
       'pEditDialogVisible': {
         handler(val) {
-          console.log('父组件EditDialogVisible改变了', val);
           this.editDialogVisible = this.pEditDialogVisible;
         },
         immediate: true
       },
       'pEditForm': {
         handler(val) {
-          console.log('父组件EditForm改变', val);
           this.editForm = this.pEditForm;
           this.id = this.pEditForm.id;
         }

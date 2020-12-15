@@ -9,6 +9,7 @@
             :before-upload="beforeUpload"
             list-type="video"
             accept=".mp4, .mpg, .mpeg, .dat"
+            name="multipartFile"
             :limit=1>
       <i class="el-icon-upload"></i>
       <div class="el-upload__text">将视频文件拖到此处，或<em>点击上传</em></div>
@@ -18,12 +19,11 @@
 </template>
 
 <script>
-  import {deleteVideo} from "@/api/upload";
   import BASE_URL from "@/utils/config";
 
   export default {
     name: "VideoUpload",
-    props: ['id','type'],
+    props: ['id', 'type'],
     data() {
       return {
         param: '',
@@ -33,16 +33,15 @@
         videoDuration: 0
       }
     },
-    created(){
-      console.log('上传视频组件被创建')
-      this.uploadUrl = BASE_URL + '/' + this.type + '/' + this.id + '/photo';
-      console.log('上传视频组件上传是的url',this.uploadUrl)
+    created() {
+      this.uploadUrl = BASE_URL + '/' + this.type + '/' + this.id + '/video';
+      console.log('上传视频组件上传是的url', this.uploadUrl)
     },
-    methods:{
-      onChange(file,filesList){
+    methods: {
+      onChange(file, filesList) {
         //创建临时的路径来展示图片
         let windowURL = window.URL || window.webkitURL;
-        this.src=windowURL.createObjectURL(file.raw);
+        this.src = windowURL.createObjectURL(file.raw);
       },
       // 封装一个判断图片文件后缀名的方法
       isVideo(fileName) {
@@ -52,7 +51,7 @@
       },
       beforeUpload(file) {
         let type = this.isVideo(file.name);
-        const size1024M = file.size / 1024 /1024 < 1024 ;
+        const size1024M = file.size / 1024 / 1024 < 1024;
         if (!type) {
           // 若不符合视频类型，则让当前上传的文件去除掉即可，即从上传对列删除本次上传
           this.fileList.splice(0, 1);
@@ -69,24 +68,16 @@
         // }
       },
       onSuccess(res, file, fileList) {
-        console.log('上传视频成功返回',res);
-        this.videoUrl = res.payload;
-        const videoInfo = {
-          videoUrl: res.payload,
-          videoDuration: this.videoDuration
-        };
-        this.$emit('videoInfo', videoInfo);
-        this.$message.success('上传视频成功');
+        console.log('上传视频成功返回', res);
+        if (res.result === 'success') {
+          this.videoUrl = res.payload;
+          this.$message.success('上传视频成功');
+        }else{
+          this.$message.error(res.payload.errorMessage);
+        }
       },
       onRemove() {
-        if (this.videoUrl !== ''){
-          deleteVideo(this.videoUrl).then(res => {
-            console.log('删除视频返回',res);
-            this.$emit('videoUrl', null);
-            this.videoUrl = '';
-            this.$message.success('删除视频成功')
-          }).catch(error => console.log(error))
-        }
+
       }
     }
   }
