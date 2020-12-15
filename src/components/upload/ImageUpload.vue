@@ -44,7 +44,7 @@
         let windowURL = window.URL || window.webkitURL;
         this.src=windowURL.createObjectURL(file.raw);
       },
-      // 封装一个判断图片文件后缀名的方法
+      // 判断图片文件后缀名的方法
       isImage(fileName) {
         if (typeof fileName !== 'string') return;
         let name = fileName.toLowerCase();

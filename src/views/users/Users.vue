@@ -350,7 +350,7 @@
         if (confirmResult !== 'confirm') {
           return this.$message.info('已取消删除')
         }
-        deleteUser(id).then(res => {
+        await deleteUser(id).then(res => {
           this.$message.success('删除用户成功！')
           this.getUserList()
         }).catch(error => console.log(error))

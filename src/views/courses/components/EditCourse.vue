@@ -6,10 +6,10 @@
         <el-form-item label="课程id">
           <el-input v-model="editForm.id" disabled></el-input>
         </el-form-item>
-        <el-form-item label="课程题目" prop="title">
+        <el-form-item label="标题" prop="title">
           <el-input v-model="editForm.title"></el-input>
         </el-form-item>
-        <el-form-item label="课程描述" prop="description">
+        <el-form-item label="描述" prop="description">
           <el-input type="textarea" v-model="editForm.description"></el-input>
         </el-form-item>
       </el-form>

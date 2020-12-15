@@ -18,7 +18,7 @@ export function addCourse(addForm) {
 
 export function deleteCourse(id) {
   return request({
-    url: `/course/${id}/`,
+    url: `/course/${id}/soft`,
     method: 'delete'
   })
 }

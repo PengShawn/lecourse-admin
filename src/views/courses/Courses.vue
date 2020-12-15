@@ -93,7 +93,7 @@
                        width="100%"></video>
               </el-form-item>
               <el-form-item label="课程描述:">
-                <span>{{ props.row.description }}</span>
+                <span>{{ props.row.course.description }}</span>
               </el-form-item>
             </el-form>
           </template>
@@ -120,17 +120,26 @@
         </el-table-column>
         <el-table-column label="操作" width="180px">
           <template slot-scope="scope">
-            <!--修改按钮          -->
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
-            <!--审核按钮          -->
-            <el-tooltip class="item" effect="dark" content="审核课程" placement="top" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" size="mini"
-                         @click="showInspectDialog(scope.row)"></el-button>
-            </el-tooltip>
-            <!--查看视频按钮    -->
-            <el-tooltip class="item" effect="dark" content="查看章节" placement="top" :enterable="false">
-              <el-button type="danger" icon="el-icon-video-camera" size="mini" @click="btnToChapter(scope.row)"></el-button>
-            </el-tooltip>
+            <div>
+              <!--审核按钮          -->
+              <el-tooltip class="item" effect="dark" content="审核课程" placement="top" :enterable="false">
+                <el-button type="warning" icon="el-icon-setting" size="mini"
+                           @click="showInspectDialog(scope.row)"></el-button>
+              </el-tooltip>
+              <!--查看视频按钮 -->
+              <el-tooltip class="item" effect="dark" content="查看章节" placement="top" :enterable="false">
+                <el-button type="success" icon="el-icon-video-camera" size="mini"
+                           @click="btnToChapter(scope.row)"></el-button>
+              </el-tooltip>
+            </div>
+            <div style="margin-top: 10px">
+              <!--修改按钮          -->
+              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
+              <!--删除按钮 -->
+              <el-button type="danger" icon="el-icon-delete" size="mini"
+                         @click="removeCourseById(scope.row.course.id)"></el-button>
+
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -150,7 +159,8 @@
     <!-- 添加课程的对话框 -->
     <add-course :AddDialogVisible.sync="addDialogVisible" @addSuccess="addCourseSuccess"></add-course>
     <!-- 修改课程的对话框 -->
-    <edit-course :EditDialogVisible.sync="editDialogVisible" :EditForm="editForm" @editSuccess="getCourseList"></edit-course>
+    <edit-course :EditDialogVisible.sync="editDialogVisible" :EditForm="editForm"
+                 @editSuccess="getCourseList"></edit-course>
     <!-- 审核课程的对话框 -->
     <inspect-course :InspectDialogVisible.sync="inspectDialogVisible"
                     :CourseInfo="courseInfo"
@@ -168,11 +178,11 @@
   import AddCourse from "./components/AddCourse";
   import InspectCourse from "./components/InspectCourse";
   //接口
-  import {fetchCourseList, getCourseHobby, getCourseTag} from "@/api/courses";
+  import {fetchCourseList, getCourseHobby, getCourseTag, deleteCourse} from "@/api/courses";
 
   export default {
     name: "Courses",
-    components: {ImageUpload, VideoUpload,SelectTag,AddCourse,EditCourse,InspectCourse},
+    components: {ImageUpload, VideoUpload, SelectTag, AddCourse, EditCourse, InspectCourse},
     data() {
       return {
         // 获取课程列表的参数对象
@@ -186,7 +196,8 @@
             title: null,
             userId: null,
             checked: null,
-            passed: null
+            passed: null,
+            del: false
           }
         },
         //课程
@@ -265,7 +276,7 @@
       ,
       //点击查看章节列表按钮
       btnToChapter(row) {
-        console.log('跳转到章节',row.course.id);
+        console.log('跳转到章节', row.course.id);
         this.$router.push({
           path: 'chapters',
           query: {
@@ -274,7 +285,7 @@
         })
       },
       addCourseSuccess(data) {
-        console.log('添加课程成功的信息',data);
+        console.log('添加课程成功的信息', data);
         this.editForm = data;
         this.editDialogVisible = true;
 
@@ -288,6 +299,26 @@
       showInspectDialog(row) {
         this.courseInfo = row.course;
         this.inspectDialogVisible = true;
+      },
+      //删除课程
+      async removeCourseById(id) {
+        // 弹框询问用户是否删除数据
+        const confirmResult = await this.$confirm(
+            '此操作将永久删除该课程, 是否继续?',
+            '提示',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
+        ).catch(err => err)
+        if (confirmResult !== 'confirm') {
+          return this.$message.info('已取消删除')
+        }
+        await deleteCourse(id).then(res => {
+          this.$message.success('删除课程成功！');
+          this.getCourseList()
+        }).catch(error => console.log(error))
       },
       //展开课程详情
       async expandChange(row, expandedRows) {
@@ -323,13 +354,11 @@
       searchFilter: function (val, oldVal) {
         this.courseList = this.courseList.filter(item => {
           let boolFind = false;
-          if(item.course.title !== null && item.course.title.indexOf(val)!==-1){
+          if (item.course.title !== null && item.course.title.indexOf(val) !== -1) {
             boolFind = true;
-          }
-          else if(item.course.description !== null && item.course.description.indexOf(val)!==-1){
+          } else if (item.course.description !== null && item.course.description.indexOf(val) !== -1) {
             boolFind = true;
-          }
-          else if(item.master.username !== null && item.master.username.indexOf(val)!==-1)
+          } else if (item.master.username !== null && item.master.username.indexOf(val) !== -1)
             boolFind = true;
           return boolFind
         });
