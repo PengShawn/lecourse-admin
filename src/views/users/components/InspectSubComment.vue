@@ -30,6 +30,8 @@
 
 <script>
   import {inspectSubComment} from "@/api/subcomments";
+
+  let {inspectTypeOptions} = require('../../../config/inspect');
   export default {
     name: "InspectSubComment",
     props: ['SubCommentInfo','SubInspectDialogVisible'],
@@ -37,10 +39,7 @@
       return {
         subCommentInfo: {},
         //审核种类
-        inspectTypeOptions: [
-          {value: 'VIOLATE', label: '含暴力信息'},
-          {value: 'ELSE', label: '其他原因(不通过)'}
-        ],
+        inspectTypeOptions: inspectTypeOptions,
         // 控制审核评论对话框的显示与隐藏
         subInspectDialogVisible: false,
         //审核是否通过

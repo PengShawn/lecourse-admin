@@ -3,7 +3,7 @@
     <el-upload
             class="upload-demo"
             drag
-            action="http://106.15.192.234:80/upload/video"
+            :action="uploadUrl"
             :on-change="onChange"
             :on-success="onSuccess"
             :before-upload="beforeUpload"
@@ -19,9 +19,11 @@
 
 <script>
   import {deleteVideo} from "@/api/upload";
+  import BASE_URL from "@/utils/config";
 
   export default {
     name: "VideoUpload",
+    props: ['id','type'],
     data() {
       return {
         param: '',
@@ -31,8 +33,10 @@
         videoDuration: 0
       }
     },
-    computed: {
-
+    created(){
+      console.log('上传视频组件被创建')
+      this.uploadUrl = BASE_URL + '/' + this.type + '/' + this.id + '/photo';
+      console.log('上传视频组件上传是的url',this.uploadUrl)
     },
     methods:{
       onChange(file,filesList){

@@ -10,7 +10,7 @@ export function fetchCommentList(queryInfo) {
 
 export function deleteCommentById(id) {
   return request({
-    url: '/comment/soft/' + id,
+    url: `/comment/${id}/soft`,
     method: 'delete'
   })
 }
@@ -26,7 +26,7 @@ export function inspectComment(commentId,pass,inspectForm) {
 
 export function batchDeleteComment(ids) {
   return request({
-    url: '/comment/soft/ids',
+    url: '/comment/soft/multi',
     method: 'delete',
     data: ids
   })

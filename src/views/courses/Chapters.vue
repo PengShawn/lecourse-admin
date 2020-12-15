@@ -46,15 +46,21 @@
             </el-switch>
           </template>
         </el-table-column>
+        <el-table-column label="删除状态" prop="passed">
+          <template slot-scope="scope">
+            <el-switch v-model="scope.row.del" disabled>
+            </el-switch>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="180px">
           <template slot-scope="scope">
             <!--修改按钮          -->
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)"></el-button>
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
             <!--删除按钮          -->
             <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeChapterById(scope.row.id)"></el-button>
-            <!--查看视频按钮          -->
-            <el-tooltip class="item" effect="dark" content="查看章节" placement="top" :enterable="false">
-              <el-button type="success" icon="el-icon-suitcase" size="mini" @click="showReadDialog(scope.row.id)"></el-button>
+            <!--审核视频按钮          -->
+            <el-tooltip class="item" effect="dark" content="审核章节" placement="top" :enterable="false">
+              <el-button type="warning" icon="el-icon-suitcase" size="mini" @click="showInspectDialog(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -71,9 +77,11 @@
               :total="total">
       </el-pagination>
     </el-card>
-
-    <add-chapter :AddDialogVisible.sync="addDialogVisible" @addSuccess="getChapterList"></add-chapter>
-
+    <!-- 添加章节的对话框 -->
+    <add-chapter :pAddDialogVisible.sync="addDialogVisible" @addSuccess="addChapterSuccess"></add-chapter>
+    <!-- 修改课程的对话框 -->
+    <edit-chapter :pEditDialogVisible.sync="editDialogVisible" :pEditForm="editForm"
+                 @editSuccess="getChapterList"></edit-chapter>
     <!-- 评论卡片视图    -->
     <el-card style="margin-top: 15px">
       <h1>评论</h1>
@@ -85,14 +93,15 @@
 <script>
   //组件
   import AddChapter from "./components/AddChapter";
+  import EditChapter from "./components/EditChapter";
   //接口
-  import {addChapter, deleteChapter, updateChapter, inspectChapter} from "@/api/chapters";
+  import {deleteChapter} from "@/api/chapters";
   import {fetchChapterList} from "@/api/courses";
 
   let courseId = 0;
   export default {
     name: "Chapter",
-    components: {AddChapter},
+    components: {AddChapter,EditChapter},
     data() {
       return {
         // 获取课程列表的参数对象
@@ -104,26 +113,16 @@
         //章节列表
         chapterList: [],
         //章节总数
-        total: 10,
+        total: 0,
         searchFilter: '',  //模糊搜索
         // 控制添加章节视频对话框的显示与隐藏
         addDialogVisible: false,
-        // 添加章节视频的表单数据
-        addForm: {
-        },
-        // 添加表单的验证规则对象
-        addFormRules: {
-        },
         // 控制修改视频章节对话框的显示与隐藏
         editDialogVisible: false,
+        inspectDialogVisible: false,
         // 查询到的章节信息对象
         editForm: {},
-        // 修改表单的验证规则对象
-        editFormRules: {},
-        //控制查看视频章节对话框的显示与隐藏
-        readDialogVisible: false,
-        // 查询到的章节信息对象
-        readForm: {}
+        chapterInfo: {}
       }
     },
     methods: {
@@ -148,22 +147,20 @@
         //然后需要重新获取课程章节列表
         this.getChapterList()
       },
-      // 监听添加章节对话框的关闭事件
-      addDialogClosed() {
-        this.$refs.addFormRef.resetFields()
+      addChapterSuccess(data) {
+        console.log('添加课程章节成功的信息', data);
+        this.editForm = data;
+        this.editDialogVisible = true;
+        this.getChapterList();
       },
       // 展示编辑章节视频的对话框
-      async showEditDialog(id) {
-        this.editForm = this.chapterlist[0]
+      async showEditDialog(row) {
+        this.editForm = row;
         this.editDialogVisible = true
       },
-      showReadDialog(id) {
-        this.editForm = this.chapterlist[0]
-        this.readDialogVisible = true
-      },
-      // 监听修改章节对话框的关闭事件
-      editDialogClosed() {
-        this.$refs.editFormRef.resetFields()
+      showInspectDialog(row) {
+        this.editForm = row
+        this.inspectDialogVisible = true
       },
       // 根据Id删除对应的视频章节信息
       async removeChapterById(id) {
@@ -198,7 +195,7 @@
             boolFind = true;
           return boolFind
         });
-        if(val === '') this.getChapterList(courseId);
+        if(val === '') this.getChapterList();
       }
     }
   }

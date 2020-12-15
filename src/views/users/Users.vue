@@ -204,7 +204,7 @@
             province: null,
             city: null,
             gender: null,
-            del: null
+            del: false
           }
         },
         userList: [],
@@ -428,7 +428,7 @@
           province: null,
           city: null,
           gender: null,
-          del: null
+          del: false
         };
         this.queryInfo.userFilter = originalFilter;
         this.getUserList();

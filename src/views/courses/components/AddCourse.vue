@@ -46,7 +46,7 @@
   import {fetchHobbyList} from "@/api/hobby";
   export default {
     name: "AddCourse",
-    props: ['AddDialogVisible'],
+    props: ['pAddDialogVisible'],
     components: {SelectTag},
     data() {
       return {
@@ -119,7 +119,7 @@
           addForm.course.id = res.payload;
           this.$emit('addSuccess', addForm.course);
           //将父组件addDialogVisible设为false
-          this.$emit('update:AddDialogVisible', false);
+          this.$emit('update:pAddDialogVisible', false);
         }).catch(error => console.log(error))
       }
       ,
@@ -128,15 +128,15 @@
         this.course = {};
         this.hobbyIdList = [];
         this.tagIdList = [];
-        this.$emit('update:AddDialogVisible',this.addDialogVisible);
+        this.$emit('update:pAddDialogVisible',this.addDialogVisible);
       },
     },
     watch: {
-      'AddDialogVisible': {
+      'pAddDialogVisible': {
         handler(val) {
           //父组件中addDialogVisible改变就会传回给子组件赋值
           console.log('父组件addDialog改变了',val);
-          this.addDialogVisible = this.AddDialogVisible;
+          this.addDialogVisible = this.pAddDialogVisible;
         },
         immediate: true
       },

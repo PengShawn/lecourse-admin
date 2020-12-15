@@ -40,17 +40,15 @@
 <script>
   import {inspectCourse} from "@/api/courses";
 
+  let {inspectTypeOptions} = require('../../../config/inspect');
   export default {
     name: "InspectCourse",
-    props: ['CourseInfo', 'InspectDialogVisible'],
+    props: ['pCourseInfo', 'pInspectDialogVisible'],
     data() {
       return {
         courseInfo: {},
         //审核种类
-        inspectTypeOptions: [
-          {value: 'VIOLATE', label: '含暴力信息'},
-          {value: 'ELSE', label: '其他原因(不通过)'}
-        ],
+        inspectTypeOptions: inspectTypeOptions,
         // 控制审核评论对话框的显示与隐藏
         inspectDialogVisible: false,
         //审核是否通过
@@ -75,7 +73,7 @@
           this.$message.success('审核课程成功！');
           this.$emit('inspectSuccess', true);
           //将父组件editDialogVisible设为false
-          this.$emit('update:InspectDialogVisible', false);
+          this.$emit('update:pInspectDialogVisible', false);
         }).catch(error => console.log(error));
       },
       // 监听审核评论框的关闭事件
@@ -85,19 +83,19 @@
         this.selectedType = 'ELSE';
         this.courseInfo = {};
         //将子组件addDialogVisible传回给父组件
-        this.$emit('update:InspectDialogVisible',this.inspectDialogVisible);
+        this.$emit('update:pInspectDialogVisible',this.inspectDialogVisible);
       },
     },
     watch: {
-      'InspectDialogVisible': {
+      'pInspectDialogVisible': {
         handler(val) {
           //父组件InspectDialogVisible改变后赋值给子组件
-          this.inspectDialogVisible = this.InspectDialogVisible;
+          this.inspectDialogVisible = this.pInspectDialogVisible;
         }
       },
-      'CourseInfo': {
+      'pCourseInfo': {
         handler(val) {
-          this.courseInfo = this.CourseInfo;
+          this.courseInfo = this.pCourseInfo;
         }
       },
     }

@@ -33,6 +33,7 @@
 <script>
   import {inspectComment} from "@/api/comments";
 
+  let {inspectTypeOptions} = require('../../../config/inspect');
   export default {
     name: "InspectComment",
     props: ['CommentInfo', 'InspectDialogVisible'],
@@ -40,10 +41,7 @@
       return {
         commentInfo: {},
         //审核种类
-        inspectTypeOptions: [
-          {value: 'VIOLATE', label: '含暴力信息'},
-          {value: 'ELSE', label: '其他原因(不通过)'}
-        ],
+        inspectTypeOptions: inspectTypeOptions,
         // 控制审核评论对话框的显示与隐藏
         inspectDialogVisible: false,
         //审核是否通过

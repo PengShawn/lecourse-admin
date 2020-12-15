@@ -199,7 +199,8 @@
           commentFilter: {
             userId: null,
             checked: null,
-            passed: null
+            passed: null,
+            del: false
           }
         },
         subQueryInfo: {

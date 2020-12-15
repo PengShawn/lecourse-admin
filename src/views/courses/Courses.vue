@@ -157,13 +157,13 @@
     </el-card>
 
     <!-- 添加课程的对话框 -->
-    <add-course :AddDialogVisible.sync="addDialogVisible" @addSuccess="addCourseSuccess"></add-course>
+    <add-course :pAddDialogVisible.sync="addDialogVisible" @addSuccess="addCourseSuccess"></add-course>
     <!-- 修改课程的对话框 -->
-    <edit-course :EditDialogVisible.sync="editDialogVisible" :EditForm="editForm"
+    <edit-course :pEditDialogVisible.sync="editDialogVisible" :pEditForm="editForm"
                  @editSuccess="getCourseList"></edit-course>
     <!-- 审核课程的对话框 -->
-    <inspect-course :InspectDialogVisible.sync="inspectDialogVisible"
-                    :CourseInfo="courseInfo"
+    <inspect-course :pInspectDialogVisible.sync="inspectDialogVisible"
+                    :pCourseInfo="courseInfo"
                     @inspectSuccess="getCourseList"></inspect-course>
   </div>
 </template>
@@ -213,29 +213,6 @@
         editForm: {},
         addDialogVisible: false,
         inspectDialogVisible: false,
-        //审核种类
-        inspectTypeOptions: [
-          {value: 'PASS', label: '审核通过'},
-          {value: 'VIOLATE', label: '含暴力信息'},
-          {value: 'ELSE', label: '其他原因(不通过)'}
-        ],
-        inspectForm: {
-          courseId: '',
-          details: '',
-          inspectorId: '',
-          type: ''
-        },
-        inspectFormRules: {
-          details: [
-            {required: true, message: '请输入审核信息', trigger: 'blur'},
-            {
-              min: 1,
-              message: '审核信息不能为空',
-              trigger: 'blur'
-            }
-          ],
-        },
-        selectedType: '',
         //是否通过审核
         passedOptions: [
           {value: true, label: '已通过'},
@@ -288,7 +265,7 @@
         console.log('添加课程成功的信息', data);
         this.editForm = data;
         this.editDialogVisible = true;
-
+        this.getCourseList()
       },
       // 展示编辑课程的对话框
       async showEditDialog(row) {
@@ -345,7 +322,9 @@
         this.queryInfo.courseFilter = {
           title: null,
           userId: null,
-          checked: null
+          checked: null,
+          passed: null,
+          del: false
         };
         this.getCourseList()
       }
