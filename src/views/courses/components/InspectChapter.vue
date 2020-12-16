@@ -1,7 +1,7 @@
 <template>
   <div>
-    <!-- 审核课程的对话框 -->
-    <el-dialog title="审核课程" :visible.sync="inspectDialogVisible" width="50%" @close="inspectDialogClosed">
+    <!-- 审核章节的对话框 -->
+    <el-dialog title="审核课程章节" :visible.sync="inspectDialogVisible" width="50%" @close="inspectDialogClosed">
       <div>
         <el-form ref="inspectFormRef" label-width="80px">
           <el-form-item label="章节简介" prop="text">
@@ -53,7 +53,7 @@
       }
     },
     methods: {
-      //审核课程
+      //审核章节
       inspectInfo() {
         const inspectForm = {
           type: this.selectedType,
@@ -62,8 +62,8 @@
         };
         if (this.pass === 'true') inspectForm.type = 'PASS';
         inspectChapter(this.chapterInfo.id, this.pass, inspectForm).then(res => {
-          console.log('审核课程', res);
-          this.$message.success('审核课程成功！');
+          console.log('审核章节', res);
+          this.$message.success('审核章节成功！');
           this.$emit('inspectSuccess', true);
           //将父组件editDialogVisible设为false
           this.$emit('update:pInspectDialogVisible', false);

@@ -51,6 +51,7 @@
   import {fetchHobbyList} from "@/api/hobby";
 
   import {provinceAndCityData, CodeToText, TextToCode} from 'element-china-area-data'
+
   export default {
     name: "AddClub",
     props: ['pAddDialogVisible'],
@@ -116,20 +117,23 @@
       },
       //点击确定添加社团
       async handleAddClub() {
-        this.club.userId = window.sessionStorage.getItem('userId');
-        const addForm = {
-          club: this.club,
-          hobbyIdList: this.hobbyIdList
-        };
-        await addClub(addForm).then(res => {
-          this.$message.success('添加社团成功！');
-          // 隐藏添加社团的对话框
-          this.addDialogVisible = false;
-          addForm.club.id = res.payload;
-          this.$emit('addSuccess', addForm.club);
-          //将父组件addDialogVisible设为false
-          this.$emit('update:pAddDialogVisible', false);
-        }).catch(error => console.log(error))
+        this.$refs.addFormRef.validate(async valid => {
+          if (!valid) return;
+          this.club.userId = window.sessionStorage.getItem('userId');
+          const addForm = {
+            club: this.club,
+            hobbyIdList: this.hobbyIdList
+          };
+          await addClub(addForm).then(res => {
+            this.$message.success('添加社团成功！');
+            // 隐藏添加社团的对话框
+            this.addDialogVisible = false;
+            addForm.club.id = res.payload;
+            this.$emit('addSuccess', addForm.club);
+            //将父组件addDialogVisible设为false
+            this.$emit('update:pAddDialogVisible', false);
+          }).catch(error => console.log(error))
+        })
       }
       ,
       // 监听添加社团对话框的关闭事件
@@ -137,14 +141,14 @@
         this.club = {};
         this.hobbyIdList = [];
         this.selectedRegion = [];
-        this.$emit('update:pAddDialogVisible',this.addDialogVisible);
+        this.$emit('update:pAddDialogVisible', this.addDialogVisible);
       },
     },
     watch: {
       'pAddDialogVisible': {
         handler(val) {
           //父组件中addDialogVisible改变就会传回给子组件赋值
-          console.log('父组件addDialog改变了',val);
+          console.log('父组件addDialog改变了', val);
           this.addDialogVisible = this.pAddDialogVisible;
         },
         immediate: true

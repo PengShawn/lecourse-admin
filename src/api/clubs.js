@@ -49,28 +49,22 @@ export function inspectClub(clubId,pass,auditForm) {
 
 export function getClubHobby(id) {
   return request({
-    url: `/club/${id}/hobby`,
+    url: `/club/hobby/list/${id}`,
     method: 'get'
   })
 }
 
-export function getClubTag(id) {
-  return request({
-    url: `/course/${id}/tag`,
-    method: 'get'
-  })
-}
 
 //设置课程分类
 export function updateClubClassification(id, idList) {
   return request({
-    url: `/course/${id}/hobby`,
-    method: 'put',
+    url: `/club/hobby/${id}`,
+    method: 'post',
     data: idList
   })
 }
 
-export function fetchEventList(queryInfo,clubId) {
+export function fetchEventListById(queryInfo,clubId) {
   return request({
     url: `/club/${clubId}/list`,
     method: 'post',

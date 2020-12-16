@@ -31,3 +31,11 @@ export function inspectEvent(eventId,pass,auditForm) {
     params: {pass: pass}
   })
 }
+
+export function fetchEventList(queryInfo) {
+  return request({
+    url: '/event/list',
+    method: 'post',
+    data: queryInfo
+  })
+}

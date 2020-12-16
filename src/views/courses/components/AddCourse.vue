@@ -44,6 +44,7 @@
   //接口
   import {addCourse} from "@/api/courses";
   import {fetchHobbyList} from "@/api/hobby";
+
   export default {
     name: "AddCourse",
     props: ['pAddDialogVisible'],
@@ -99,26 +100,29 @@
       },
       //选择标签组件传来的标签list
       handleAddTagIdList(selectValue) {
-        console.log('选择的标签',selectValue);
+        console.log('选择的标签', selectValue);
         this.tagIdList = selectValue;
       },
       //点击确定添加课程
-     async handleAddCourse() {
-        this.course.userId = window.sessionStorage.getItem('userId');
-        const addForm = {
-          course: this.course,
-          tagIdList: this.tagIdList,
-          hobbyIdList: this.hobbyIdList
-        };
-        await addCourse(addForm).then(res => {
-          this.$message.success('添加课程成功！');
-          // 隐藏添加课程的对话框
-          this.addDialogVisible = false;
-          addForm.course.id = res.payload;
-          this.$emit('addSuccess', addForm.course);
-          //将父组件addDialogVisible设为false
-          this.$emit('update:pAddDialogVisible', false);
-        }).catch(error => console.log(error))
+      async handleAddCourse() {
+        this.$refs.addFormRef.validate(async valid => {
+          if (!valid) return;
+          this.course.userId = window.sessionStorage.getItem('userId');
+          const addForm = {
+            course: this.course,
+            tagIdList: this.tagIdList,
+            hobbyIdList: this.hobbyIdList
+          };
+          await addCourse(addForm).then(res => {
+            this.$message.success('添加课程成功！');
+            // 隐藏添加课程的对话框
+            this.addDialogVisible = false;
+            addForm.course.id = res.payload;
+            this.$emit('addSuccess', addForm.course);
+            //将父组件addDialogVisible设为false
+            this.$emit('update:pAddDialogVisible', false);
+          }).catch(error => console.log(error))
+        })
       }
       ,
       // 监听添加课程对话框的关闭事件
@@ -126,14 +130,14 @@
         this.course = {};
         this.hobbyIdList = [];
         this.tagIdList = [];
-        this.$emit('update:pAddDialogVisible',this.addDialogVisible);
+        this.$emit('update:pAddDialogVisible', this.addDialogVisible);
       },
     },
     watch: {
       'pAddDialogVisible': {
         handler(val) {
           //父组件中addDialogVisible改变就会传回给子组件赋值
-          console.log('父组件addDialog改变了',val);
+          console.log('父组件addDialog改变了', val);
           this.addDialogVisible = this.pAddDialogVisible;
         },
         immediate: true

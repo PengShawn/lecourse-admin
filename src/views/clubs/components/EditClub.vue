@@ -130,6 +130,7 @@
           console.log('修改社团表', this.editForm);
           updateClub(this.editForm.id, this.editForm).then(res => {
             if (this.hobbyIdList.length > 0) {
+              console.log('社团分类更新',this.hobbyIdList)
               updateClubClassification(this.editForm.id, this.hobbyIdList).then();
             }
             this.$message.success('更新社团信息成功');
