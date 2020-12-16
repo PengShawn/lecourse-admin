@@ -9,6 +9,10 @@
             :before-upload="beforeUpload"
             list-type="video"
             accept=".mp4, .mpg, .mpeg, .dat"
+            v-loading.fullscreen.lock="loading"
+            element-loading-text="拼命上传中"
+            element-loading-spinner="el-icon-loading"
+            element-loading-background="rgba(0, 0, 0, 0.8)"
             name="multipartFile"
             :limit=1>
       <i class="el-icon-upload"></i>
@@ -29,6 +33,7 @@
         param: '',
         fileList: [],
         src: '',
+        loading: false,
         videoUrl: '',
         videoDuration: 0
       }
@@ -66,14 +71,27 @@
         //   this.$message.error('视频大小不能超过1024M');
         //   return false;
         // }
+        this.loading = true;
       },
       onSuccess(res, file, fileList) {
         console.log('上传视频成功返回', res);
         if (res.result === 'success') {
+          this.loading = false;
           this.videoUrl = res.payload;
-          this.$message.success('上传视频成功');
+          this.$message({
+            showClose: true,
+            message: '上传视频成功',
+            type: 'success',
+            duration: 0
+          });
         }else{
-          this.$message.error(res.payload.errorMessage);
+          this.loading = false;
+          this.$message({
+            showClose: true,
+            message: res.payload.errorMessage,
+            type: 'error',
+            duration: 0
+          });
         }
       },
       onRemove() {

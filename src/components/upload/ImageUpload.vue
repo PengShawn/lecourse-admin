@@ -63,6 +63,7 @@
           this.$message.error('图片大小不能超过10M');
           return false;
         }
+
       },
       onSuccess(res, file, fileList) {
         console.log('上传图片返回',res);
