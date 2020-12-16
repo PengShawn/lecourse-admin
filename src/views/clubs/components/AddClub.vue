@@ -1,17 +1,27 @@
 <template>
   <div>
-    <!-- 添加课程的对话框 -->
-    <el-dialog title="添加课程" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">
+    <!-- 添加社团的对话框 -->
+    <el-dialog title="添加社团" :visible.sync="addDialogVisible" width="50%" @close="addDialogClosed">
       <!-- 内容主体区域 -->
-      <el-form :model="course" :rules="addFormRules" ref="addFormRef" label-width="70px">
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="course.title" clearable></el-input>
+      <el-form :model="club" :rules="addFormRules" ref="addFormRef" label-width="70px">
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="club.name" clearable></el-input>
         </el-form-item>
         <el-form-item label="描述" prop="description">
-          <el-input v-model="course.description" clearable></el-input>
+          <el-input v-model="club.description" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="社团位置" prop="region">
+          <div class="block">
+            <el-cascader
+                    size="large"
+                    :options="region"
+                    v-model="selectedRegion"
+                    @change="regionChange">
+            </el-cascader>
+          </div>
         </el-form-item>
         <div>
-          <label>课程分类</label>
+          <label>社团分类</label>
           <el-select
                   v-model="hobbyIdList"
                   multiple
@@ -27,42 +37,38 @@
           </el-select>
         </div>
       </el-form>
-      <label>课程标签:</label>
-      <select-tag @selectValue="handleAddTagIdList" :tagIdList="tagIdList" style="margin-left: 70px"></select-tag>
-      <!-- 底部区域 -->
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleAddCourse">确 定</el-button>
+        <el-button type="primary" @click="handleAddClub">确 定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-  //组件
-  import SelectTag from "@/components/selectTag/SelectTag";
   //接口
-  import {addCourse} from "@/api/courses";
+  import {addClub} from "@/api/clubs";
   import {fetchHobbyList} from "@/api/hobby";
+
+  import {provinceAndCityData, CodeToText, TextToCode} from 'element-china-area-data'
   export default {
-    name: "AddCourse",
+    name: "AddClub",
     props: ['pAddDialogVisible'],
-    components: {SelectTag},
     data() {
       return {
         addDialogVisible: false,
-        course: {
+        club: {
           city: "13000000",
           description: "",
           price: 0,
           province: "13000000",
-          title: "",
+          name: "",
           type: "COURSE",
           userId: null
         },
         addFormRules: {
-          title: [
-            {required: true, message: '请输入课程标题', trigger: 'blur'},
+          name: [
+            {required: true, message: '请输入社团标题', trigger: 'blur'},
             {
               min: 2,
               max: 50,
@@ -71,19 +77,22 @@
             }
           ],
           description: [
-            {required: true, message: '请输入课程描述', trigger: 'blur'},
+            {required: true, message: '请输入社团描述', trigger: 'blur'},
             {
               min: 2,
               max: 200,
-              message: '课程描述名的长度在2~800个字符之间',
+              message: '社团描述名的长度在2~800个字符之间',
               trigger: 'blur'
             }
           ],
         },
         hobbyIdList: [],
-        tagIdList: [],
         //所有hobby
         hobbyList: [],
+        //地区选择
+        region: provinceAndCityData,
+        //增加表单选中的地区
+        selectedRegion: []
       }
     },
     created() {
@@ -97,35 +106,37 @@
           this.hobbyList = res.payload;
         }).catch(error => console.log(error))
       },
-      //选择标签组件传来的标签list
-      handleAddTagIdList(selectValue) {
-        console.log('选择的标签',selectValue);
-        this.tagIdList = selectValue;
+      //选择地区
+      regionChange(region) {
+        this.club.province = CodeToText[region[0]];
+        if (CodeToText[region[1]] === '市辖区' || CodeToText[region[1]] === '县')
+          this.club.city = CodeToText[region[0]];
+        else
+          this.club.city = CodeToText[region[1]];
       },
-      //点击确定添加课程
-     async handleAddCourse() {
-        this.course.userId = window.sessionStorage.getItem('userId');
+      //点击确定添加社团
+      async handleAddClub() {
+        this.club.userId = window.sessionStorage.getItem('userId');
         const addForm = {
-          course: this.course,
-          tagIdList: this.tagIdList,
+          club: this.club,
           hobbyIdList: this.hobbyIdList
         };
-        await addCourse(addForm).then(res => {
-          this.$message.success('添加课程成功！');
-          // 隐藏添加课程的对话框
+        await addClub(addForm).then(res => {
+          this.$message.success('添加社团成功！');
+          // 隐藏添加社团的对话框
           this.addDialogVisible = false;
-          addForm.course.id = res.payload;
-          this.$emit('addSuccess', addForm.course);
+          addForm.club.id = res.payload;
+          this.$emit('addSuccess', addForm.club);
           //将父组件addDialogVisible设为false
           this.$emit('update:pAddDialogVisible', false);
         }).catch(error => console.log(error))
       }
       ,
-      // 监听添加课程对话框的关闭事件
+      // 监听添加社团对话框的关闭事件
       addDialogClosed() {
-        this.course = {};
+        this.club = {};
         this.hobbyIdList = [];
-        this.tagIdList = [];
+        this.selectedRegion = [];
         this.$emit('update:pAddDialogVisible',this.addDialogVisible);
       },
     },

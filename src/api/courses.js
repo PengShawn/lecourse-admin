@@ -61,6 +61,24 @@ export function getCourseTag(id) {
   })
 }
 
+//设置课程分类
+export function updateCourseClassification(id, idList) {
+  return request({
+    url: `/course/${id}/hobby`,
+    method: 'put',
+    data: idList
+  })
+}
+
+//设置课程标签
+export function updateCourseTag(id, idList) {
+  return request({
+    url: `/course/${id}/tag`,
+    method: 'put',
+    data: idList
+  })
+}
+
 export function fetchChapterList(queryInfo,courseId) {
   return request({
     url: `/course/${courseId}/list`,

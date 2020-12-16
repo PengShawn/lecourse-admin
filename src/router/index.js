@@ -9,6 +9,7 @@ import Courses from "../views/courses/Courses";
 import Chapters from "../views/courses/Chapters";
 import Posts from "../views/posts/Posts";
 import Clubs from "../views/clubs/Clubs";
+import Events from "../views/clubs/Events";
 
 Vue.use(VueRouter);
 
@@ -32,6 +33,7 @@ const routes = [
       {path: '/courses', component: Courses},
       {path: '/chapters', component: Chapters},
       {path: '/clubs', component: Clubs},
+      {path: '/events', component: Events},
       {path: '/posts', component: Posts},
     ]
   }

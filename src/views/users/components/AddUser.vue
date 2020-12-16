@@ -65,6 +65,7 @@
   import {addUser} from '@/api/users';
   import {provinceAndCityData, CodeToText, TextToCode} from 'element-china-area-data'
 
+  let {genderOptions, roleOptions} = require('../../../config/role');
   export default {
     name: "AddUser",
     props: ['AddDialogVisible'],
@@ -103,18 +104,9 @@
           ]
         },
         //性别选择
-        genderOptions: [
-          {value: 'MALE', label: '男'},
-          {value: 'FEMALE', label: '女'},
-          {value: 'ELSE', label: '其他'},
-        ],
+        genderOptions: genderOptions,
         //角色选择
-        roleOptions: [
-          {value: 'USER', label: '用户'},
-          {value: 'MERCHANT', label: '商家'},
-          {value: 'VERIFIED', label: '审核者'},
-          {value: 'ADMIN', label: '管理员'},
-        ],
+        roleOptions: roleOptions,
         //日期选择
         birthdayOptions: {
           disabledDate(time) {

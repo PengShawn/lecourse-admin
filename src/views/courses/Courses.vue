@@ -4,7 +4,6 @@
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>课程管理</el-breadcrumb-item>
-      <el-breadcrumb-item>课程列表</el-breadcrumb-item>
     </el-breadcrumb>
 
     <!-- 筛选搜索卡片   -->
@@ -112,6 +111,7 @@
           </template>
         </el-table-column>
         <el-table-column label="价格" prop="course.price"></el-table-column>
+        <el-table-column label="点击量" prop="course.hit"></el-table-column>
         <el-table-column label="通过状态" prop="passed">
           <template slot-scope="scope">
             <el-switch v-model="scope.row.course.passed" disabled>
@@ -230,6 +230,8 @@
     },
     methods: {
       getCourseList() {
+        if(this.queryInfo.courseFilter.title === '')
+          this.queryInfo.courseFilter.title = null;
         fetchCourseList(this.queryInfo).then(res => {
           console.log('获取课程列表', res);
           this.courseList = res.payload.list;

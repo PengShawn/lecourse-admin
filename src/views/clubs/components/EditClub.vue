@@ -1,25 +1,32 @@
 <template>
   <div>
-    <!-- 修改课程的对话框 -->
-    <el-dialog title="修改课程" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
-      <label>介绍视频:</label>
-      <video-upload :id="id" :type="type" style="margin-left: 70px"></video-upload>
-      <label>课程封面:</label>
+    <!-- 修改社团的对话框 -->
+    <el-dialog title="修改社团" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
+      <label>社团封面:</label>
       <image-upload :id="id" :type="type" style="margin-left: 70px"></image-upload>
       <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
-        <el-form-item label="课程id">
+        <el-form-item label="社团id">
           <el-input v-model="editForm.id" disabled></el-input>
         </el-form-item>
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="editForm.title"></el-input>
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="editForm.name"></el-input>
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input type="textarea" v-model="editForm.description"></el-input>
         </el-form-item>
+        <el-form-item label="社团位置" prop="region">
+          <div class="block">
+            <el-cascader
+                    size="large"
+                    :options="region"
+                    v-model="selectedRegion"
+                    @change="regionChange">
+            </el-cascader>
+          </div>
+        </el-form-item>
       </el-form>
-
       <div>
-        <label>课程分类</label>
+        <label>社团分类</label>
         <el-select
                 v-model="hobbyIdList"
                 multiple
@@ -34,12 +41,9 @@
           </el-option>
         </el-select>
       </div>
-      <label>课程标签:</label>
-      <select-tag @selectValue="handleAddTagIdList" :tagIdList="tagIdList" style="margin-left: 70px"></select-tag>
-
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editCourseInfo">确 定</el-button>
+        <el-button type="primary" @click="editClubInfo">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -48,27 +52,25 @@
 <script>
   //组件
   import ImageUpload from "@/components/upload/ImageUpload";
-  import VideoUpload from "@/components/upload/VideoUpload";
-  import SelectTag from "@/components/selectTag/SelectTag";
+  import {provinceAndCityData, CodeToText, TextToCode} from 'element-china-area-data'
   //接口
-  import {updateCourse, updateCourseClassification, updateCourseTag} from "@/api/courses";
+  import {updateClub, updateClubClassification, updateClubTag} from "@/api/clubs";
   import {fetchHobbyList} from "@/api/hobby";
 
   export default {
-    name: "EditCourse",
+    name: "EditClub",
     props: ['pEditDialogVisible', 'pEditForm'],
-    components: {ImageUpload, VideoUpload, SelectTag},
+    components: {ImageUpload},
     data() {
       return {
         //所有hobby
         hobbyList: [],
         hobbyIdList: [],
-        tagIdList: [],
         editDialogVisible: false,
         editForm: {},
         editFormRules: {
-          title: [
-            {required: true, message: '请输入课程标题', trigger: 'blur'},
+          name: [
+            {required: true, message: '请输入社团名称', trigger: 'blur'},
             {
               min: 2,
               max: 50,
@@ -77,17 +79,21 @@
             }
           ],
           description: [
-            {required: true, message: '请输入课程描述', trigger: 'blur'},
+            {required: true, message: '请输入社团描述', trigger: 'blur'},
             {
               min: 2,
               max: 200,
-              message: '课程描述名的长度在2~200个字符之间',
+              message: '社团描述名的长度在2~200个字符之间',
               trigger: 'blur'
             }
           ],
         },
         id: '',
-        type: 'course'
+        type: 'club',
+        //地区选择
+        region: provinceAndCityData,
+        //增加表单选中的地区
+        selectedRegion: []
       }
     },
     created() {
@@ -100,34 +106,33 @@
           this.hobbyList = res.payload;
         }).catch(error => console.log(error))
       },
-      //选择标签组件传来的标签list
-      handleAddTagIdList(selectValue) {
-        console.log('选择的标签', selectValue);
-        this.tagIdList = selectValue;
+      //选择地区
+      regionChange(region) {
+        this.editForm.province = CodeToText[region[0]];
+        if (CodeToText[region[1]] === '市辖区' || CodeToText[region[1]] === '县')
+          this.editForm.city = CodeToText[region[0]];
+        else
+          this.editForm.city = CodeToText[region[1]];
       },
       // 监听修改对话框的关闭事件
       editDialogClosed() {
         this.$refs.editFormRef.resetFields();
         this.id = '';
         this.hobbyIdList = [];
-        this.tagIdList = [];
         //将子组件addDialogVisible传回给父组件
         this.$emit('update:pEditDialogVisible', this.editDialogVisible);
       },
-      //修改课程信息提交
-      async editCourseInfo() {
+      //修改社团信息提交
+      async editClubInfo() {
         this.$refs.editFormRef.validate(async valid => {
           if (!valid) return;
           delete this.editForm.photoUrl;
-          delete this.editForm.videoUrl;
-          console.log('修改课程表', this.editForm);
-          updateCourse(this.editForm.id, this.editForm).then(res => {
+          console.log('修改社团表', this.editForm);
+          updateClub(this.editForm.id, this.editForm).then(res => {
             if (this.hobbyIdList.length > 0) {
-              updateCourseClassification(this.editForm.id, this.hobbyIdList).then();
+              updateClubClassification(this.editForm.id, this.hobbyIdList).then();
             }
-            if (this.tagIdList.length > 0)
-              updateCourseTag(this.editForm.id, this.tagIdList).then();
-            this.$message.success('更新课程信息成功');
+            this.$message.success('更新社团信息成功');
             this.editDialogVisible = false;
             this.$emit('editSuccess', true);
             //将父组件editDialogVisible设为false
