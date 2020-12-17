@@ -64,9 +64,9 @@ export function updateClubClassification(id, idList) {
   })
 }
 
-export function fetchEventListById(queryInfo,clubId) {
+export function fetchEventListById(clubId,queryInfo) {
   return request({
-    url: `/club/${clubId}/list`,
+    url: `/club/events/${clubId}`,
     method: 'post',
     data: queryInfo
   })

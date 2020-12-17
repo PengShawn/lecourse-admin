@@ -96,12 +96,12 @@
   import InspectEvent from "./components/InspectEvent";
   //接口
   import {deleteEvent} from "@/api/events";
-  import {fetchEventList} from "@/api/events";
+  import {fetchEventListById} from "@/api/clubs";
 
   import {formatDate} from '@/utils/date';
   let clubId = 0;
   export default {
-    name: "Event",
+    name: "Events",
     components: {AddEvent, EditEvent, InspectEvent},
     data() {
       return {
@@ -137,7 +137,7 @@
     methods: {
       //获取活动列表
       getEventList() {
-        fetchEventList(this.queryInfo).then(res => {
+        fetchEventListById(clubId, this.queryInfo.listParam).then(res => {
           console.log('获取活动列表', res);
           this.eventList = res.payload.list;
           this.total = res.payload.param.totalNum;
@@ -191,7 +191,7 @@
           this.getEventList();
         }).catch(error => console.log(error))
       },
-      dateFormat(row, column) {
+      dateFormat(row) {
         let date = new Date(row.holdTime);
         return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
       }
