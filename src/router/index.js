@@ -40,7 +40,7 @@ const routes = [
 ];
 
 const router = new VueRouter({
-  module: 'history',
+  mode: 'history',
   routes,
   linkActiveClass: 'active'
 });

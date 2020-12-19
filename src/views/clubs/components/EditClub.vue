@@ -129,9 +129,9 @@
           delete this.editForm.photoUrl;
           console.log('修改社团表', this.editForm);
           updateClub(this.editForm.id, this.editForm).then(res => {
+            console.log('社团分类传的idlist',this.hobbyIdList)
             if (this.hobbyIdList.length > 0) {
-              console.log('社团分类更新',this.hobbyIdList)
-              updateClubClassification(this.editForm.id, this.hobbyIdList).then();
+              updateClubClassification(this.editForm.id, this.hobbyIdList).then(cRes => console.log('社团分类更新返回',cRes));
             }
             this.$message.success('更新社团信息成功');
             this.editDialogVisible = false;

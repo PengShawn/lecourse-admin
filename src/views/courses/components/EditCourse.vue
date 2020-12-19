@@ -122,11 +122,12 @@
           delete this.editForm.videoUrl;
           console.log('修改课程表', this.editForm);
           updateCourse(this.editForm.id, this.editForm).then(res => {
+            console.log('课程tag更新传的idlist',this.tagIdList)
             if (this.hobbyIdList.length > 0) {
               updateCourseClassification(this.editForm.id, this.hobbyIdList).then();
             }
             if (this.tagIdList.length > 0)
-              updateCourseTag(this.editForm.id, this.tagIdList).then();
+              updateCourseTag(this.editForm.id, this.tagIdList).then(tRes => console.log('课程tag更新返回',tRes));
             this.$message.success('更新课程信息成功');
             this.editDialogVisible = false;
             this.$emit('editSuccess', true);
