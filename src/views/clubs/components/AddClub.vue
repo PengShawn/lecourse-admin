@@ -10,6 +10,12 @@
         <el-form-item label="描述" prop="description">
           <el-input v-model="club.description" clearable></el-input>
         </el-form-item>
+        <el-form-item label="经度" prop="longitude">
+          <el-input v-model="club.longitude" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="纬度" prop="latitude">
+          <el-input v-model="club.latitude" clearable></el-input>
+        </el-form-item>
         <el-form-item label="社团位置" prop="region">
           <div class="block">
             <el-cascader
@@ -65,7 +71,9 @@
           province: "13000000",
           name: "",
           type: "COURSE",
-          userId: null
+          userId: null,
+          latitude: 31.23224,
+          longitude: 121.46902,
         },
         addFormRules: {
           name: [
@@ -124,6 +132,7 @@
             club: this.club,
             hobbyIdList: this.hobbyIdList
           };
+          console.log('需要添加的社团的信息',addForm);
           await addClub(addForm).then(res => {
             this.$message.success('添加社团成功！');
             // 隐藏添加社团的对话框

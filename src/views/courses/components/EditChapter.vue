@@ -9,9 +9,12 @@
         <el-form-item label="描述" prop="description">
           <el-input v-model="editForm.description"></el-input>
         </el-form-item>
+        <el-form-item label="vid" prop="vid">
+          <el-input v-model="editForm.vid" clearable></el-input>
+        </el-form-item>
       </el-form>
-      <label>章节视频:</label>
-      <video-upload :id="id" :type="type" style="margin-left: 70px"></video-upload>
+<!--      <label>章节视频:</label>-->
+<!--      <video-upload :id="id" :type="type" style="margin-left: 70px"></video-upload>-->
       <label>章节封面:</label>
       <image-upload :id="id" :type="type" style="margin-left: 70px"></image-upload>
 
@@ -49,6 +52,15 @@
               trigger: 'blur'
             }
           ],
+          vid: [
+            {required: true, message: '请输入vid', trigger: 'blur'},
+            {
+              min: 1,
+              max: 100,
+              message: 'vid的长度在1~100个字符之间',
+              trigger: 'blur'
+            }
+          ]
         },
         id: '',
         type: 'chapter'

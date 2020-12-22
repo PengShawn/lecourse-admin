@@ -27,6 +27,7 @@
       <el-table :data="chapterList" border stripe ref="selectedList" >
         <el-table-column type="index" label="#"></el-table-column>
         <el-table-column label="章节id" prop="id"></el-table-column>
+        <el-table-column label="章节vid" prop="vid"></el-table-column>
         <el-table-column label="章节描述" prop="description"></el-table-column>
         <el-table-column label="章节封面" >
           <template slot-scope="scope">

@@ -81,9 +81,6 @@
               <el-form-item label="社团id:">
                 <span>{{ props.row.club.id }}</span>
               </el-form-item>
-              <el-form-item label="作者id:">
-                <span>{{ props.row.club.userId}}</span>
-              </el-form-item>
               <el-form-item label="创建者:">
                 <span>{{ props.row.master.username}}</span>
               </el-form-item>
@@ -95,6 +92,12 @@
               </el-form-item>
               <el-form-item label="城市:">
                 <span>{{ props.row.club.city }}</span>
+              </el-form-item>
+              <el-form-item label="经度:">
+                <span>{{ props.row.club.longitude}}</span>
+              </el-form-item>
+              <el-form-item label="纬度:">
+                <span>{{ props.row.club.latitude}}</span>
               </el-form-item>
             </el-form>
           </template>
@@ -112,6 +115,8 @@
                     fit="fill"></el-image>
           </template>
         </el-table-column>
+        <el-table-column label="经度" prop="club.longitude"></el-table-column>
+        <el-table-column label="纬度" prop="club.latitude"></el-table-column>
         <el-table-column label="通过状态" prop="passed">
           <template slot-scope="scope">
             <el-switch v-model="scope.row.club.passed" disabled>
@@ -304,13 +309,14 @@
         const lastExpand = expandedRows[expandedRows.length - 1].club;
         if (expandedRows.length > 1) {
           expandedRows.map((item) => {
-            if (lastExpand.id !== item.id) {
+            if (lastExpand.id !== item.club.id) {
               this.$refs.selectedList.toggleRowExpansion(item, false)
             }
           })
         }
         //获取展开社团的hobby
         getClubHobby(lastExpand.id).then(res => {
+          console.log('展开社团的hobby',res.payload);
           this.expandHobby = res.payload;
         }).catch(error => console.log(error));
       },

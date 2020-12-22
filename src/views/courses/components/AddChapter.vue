@@ -7,6 +7,9 @@
         <el-form-item label="描述" prop="description">
           <el-input v-model="chapter.description" clearable></el-input>
         </el-form-item>
+        <el-form-item label="vid" prop="vid">
+          <el-input v-model="chapter.vid" clearable></el-input>
+        </el-form-item>
       </el-form>
       <!-- 底部区域 -->
       <span slot="footer" class="dialog-footer">
@@ -39,6 +42,15 @@
               trigger: 'blur'
             }
           ],
+          vid: [
+            {required: true, message: '请输入vid', trigger: 'blur'},
+            {
+              min: 1,
+              max: 100,
+              message: 'vid的长度在1~100个字符之间',
+              trigger: 'blur'
+            }
+          ]
         },
       }
     },

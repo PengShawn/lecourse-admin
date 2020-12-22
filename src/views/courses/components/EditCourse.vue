@@ -2,8 +2,8 @@
   <div>
     <!-- 修改课程的对话框 -->
     <el-dialog title="修改课程" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
-      <label>介绍视频:</label>
-      <video-upload :id="id" :type="type" style="margin-left: 70px"></video-upload>
+<!--      <label>介绍视频:</label>-->
+<!--      <video-upload :id="id" :type="type" style="margin-left: 70px"></video-upload>-->
       <label>课程封面:</label>
       <image-upload :id="id" :type="type" style="margin-left: 70px"></image-upload>
       <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
@@ -15,6 +15,9 @@
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input type="textarea" v-model="editForm.description"></el-input>
+        </el-form-item>
+        <el-form-item label="vid" prop="vid">
+          <el-input v-model="editForm.vid"></el-input>
         </el-form-item>
       </el-form>
 
@@ -80,11 +83,20 @@
             {required: true, message: '请输入课程描述', trigger: 'blur'},
             {
               min: 2,
-              max: 200,
+              max: 800,
               message: '课程描述名的长度在2~200个字符之间',
               trigger: 'blur'
             }
           ],
+          vid: [
+            {required: true, message: '请输入vid', trigger: 'blur'},
+            {
+              min: 1,
+              max: 100,
+              message: 'vid的长度在1~100个字符之间',
+              trigger: 'blur'
+            }
+          ]
         },
         id: '',
         type: 'course'

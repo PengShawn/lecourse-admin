@@ -74,7 +74,7 @@
         <el-table-column type="expand">
           <template slot-scope="props">
             <el-form label-position="left" inline class="demo-table-expand">
-              <el-form-item label="分类:">
+              <el-form-item label="分类:" >
                 <el-tag v-for="item in expandHobby" v-bind:key="item.id" effect="dark" type="success">{{item.name}}
                 </el-tag>
               </el-form-item>
@@ -101,6 +101,7 @@
         <el-table-column type="index" label="#"></el-table-column>
         <el-table-column label="课程题目" prop="course.title"></el-table-column>
         <el-table-column label="课程id" prop="course.id"></el-table-column>
+        <el-table-column label="课程vid" prop="course.vid"></el-table-column>
         <el-table-column label="作者" prop="master.username"></el-table-column>
         <el-table-column label="课程封面">
           <template slot-scope="scope">
@@ -121,7 +122,7 @@
         <el-table-column label="操作" width="180px">
           <template slot-scope="scope">
             <div>
-              <!--审核按钮          -->
+              <!--审核按钮   -->
               <el-tooltip class="item" effect="dark" content="审核课程" placement="top" :enterable="false">
                 <el-button type="warning" icon="el-icon-setting" size="mini"
                            @click="showInspectDialog(scope.row)"></el-button>
@@ -305,13 +306,15 @@
         const lastExpand = expandedRows[expandedRows.length - 1].course;
         if (expandedRows.length > 1) {
           expandedRows.map((item) => {
-            if (lastExpand.id !== item.id) {
+            if (lastExpand.id !== item.course.id) {
               this.$refs.selectedList.toggleRowExpansion(item, false)
             }
           })
         }
+        console.log('展开的课程',expandedRows);
         //获取展开课程的hobby
         getCourseHobby(lastExpand.id).then(res => {
+          console.log('展开课程的hobby',res.payload);
           this.expandHobby = res.payload;
         }).catch(error => console.log(error));
         //获取展开课程的tag

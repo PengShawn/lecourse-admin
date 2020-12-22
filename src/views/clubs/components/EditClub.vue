@@ -14,6 +14,12 @@
         <el-form-item label="描述" prop="description">
           <el-input type="textarea" v-model="editForm.description"></el-input>
         </el-form-item>
+        <el-form-item label="经度" prop="longitude">
+          <el-input v-model="editForm.longitude" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="纬度" prop="latitude">
+          <el-input v-model="editForm.latitude" clearable></el-input>
+        </el-form-item>
         <el-form-item label="社团位置" prop="region">
           <div class="block">
             <el-cascader
